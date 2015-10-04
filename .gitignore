@@ -1,0 +1,24 @@
+# Ignore all target directories
+target/
+
+# Ignore unwanted IntelliJ IDEA project files
+/intelliJ/
+/intellij/
+*.ipr
+*.iml
+*.iws
+.idea/
+atlassian-ide-plugin.xml
+
+# Ignore gradle stuff
+.gradle/
+build/
+
+# OS generated files
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+*.swp
+*.*~
+._*

@@ -1,0 +1,79 @@
+* thredds.catalog2 work
+** Current log of activity
+*** 2014-02-02
+- Compare Catalog classes to Service classes
+*** 2014-01-27
+- Start "fresh" in clcommon with package ucar.thredds.catalog
+  - Limit initial work to Catalog
+** Current actions
+*** TODO Write impl agnostic Builder/Node tests
+*** TODO Write impl specific Builder/Node tests
+*** TODO Write impl and parser agnostic tests
+*** TODO Ensure consistency throughout classes
+| class          | str    | straight     | straight   | simple |
+|                | B-able | Test Builder | Test Built |        |
+|----------------+--------+--------------+------------+--------|
+| Catalog        |        |              |            |        |
+| "   " - Simple |        |              |            |        |
+| Property       |        |              |            |        |
+| "   " - Simple |        |              |            |        |
+| Service        |        |              |            |        |
+| "   " - Simple |        |              |            |        |
+| Access         |        |              |            |        |
+| "   " - Simple |        |              |            |        |
+| DatasetNode    |        |              |            |        |
+| "   " - Simple |        |              |            |        |
+| Dataset        |        |              |            |        |
+| "   " - Simple |        |              |            |        |
+| CatalogRef     |        |              |            |        |
+| "   " - Simple |        |              |            |        |
+| Metadata       |        |              |            |        |
+| "   " - Simple |        |              |            |        |
+| THR Metadata   |        |              |            |        |
+| "   " - Simple |        |              |            |        |
+|----------------+--------+--------------+------------+--------|
+
+- Checklist (matching columns above)
+  1) this.isBuildable, isBuildable():Buildable
+  2) checkForIssues():BuilderIssues
+  3) Set this.isBuildable = Buildable.DONT_KNOW whenever state
+     changed
+  4) All Builder properties and elements are mutable
+  5) All Builder URL usage is as String
+  6) non-Builder's are as final as possible
+  7) non-Builder's are serializable
+
+** Old notes, still relevant
+- Done in previous changes
+  - Start using BuilderIssue(s) more widely.
+  - Remove URI from Builders so can handle bad URI strings gracefully.
+  - Split the Catalog XML utils out from the parser utils (already in thredds.catalog.xml.testutil)
+- Current: straightimpl2, second attempt at straightimpl
+  - [X] Copy simpleimpl to straightimpl2
+  - [X] Update all Property* classes to match straightimpl
+  - [X] Copy ImmutableBuilderIssueContainer over from straightimpl
+  - [X] Add GlobalServiceBuilderContainer
+  - [X] Some clean up of BuilderIssueContainer* classes
+  - [X] Update GlobalService*Container to match strightimpl, with rename
+  - [ ] Update all Service* classes and double check CatalogWideService*Tracker classes
+  - [ ] Need to copy
+  - [ ] In CatalogWideServiceBuilderTracker, switch from using List<> servicesWithDuplicateNames to using List<> allServices
+- New changes:
+  - [ ] Need to get things running so I can run tests! Need to test GlobalServiceContainer.removeService( service)
+  - [x] Clean up BuilderIssue(s) and BuilderException
+  - [ ] ThreddsBuilder:
+    - [x] boolean isBuilt() ---> Buildable isBuildable()
+    - [X] Buildable is enum (YES, NO, DONT_KNOW) // if DONT_KNOW, run checkForIssues() to determine
+    - [x] BuilderIssues getIssues() --> BuilderIssues checkForIssues()
+  - [ ] Add baseimpl
+    - [ ] Move PropertyImpl and PropertyContainer to baseimpl
+    - [ ] Move ThreddsCatalogIssueImpl to baseimple
+  - [ ] Rename simpleimpl to combinedimpl for impl with builder/non-builder class
+  - [X] Add straightimpl for impl with both builder and non-builder classes
+  - [ ] In GlobalServiceContainer, switch from using List<> servicesWithDuplicateNames to using List<> allServices
+- Future changes:
+  - [ ] Don't implement ThreddsBuilder in Container classes but support other classes
+- Tests
+  - Can't add sub-services to a non-compound service
+  - Can't add a service multiple times. Can add identical service multiple times.
+  - There is always a rootServiceContainer
