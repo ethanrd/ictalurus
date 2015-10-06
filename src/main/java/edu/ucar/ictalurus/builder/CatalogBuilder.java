@@ -34,6 +34,9 @@ package edu.ucar.ictalurus.builder;
 
 import ucar.nc2.units.DateType;
 import edu.ucar.ictalurus.Catalog;
+import edu.ucar.ictalurus.Property;
+
+import java.util.List;
 
 /**
  * _more_
@@ -72,12 +75,13 @@ public interface CatalogBuilder extends ThreddsBuilder
 //  public List<DatasetNodeBuilder> getDatasetNodeBuilders();
 //  public DatasetNodeBuilder getDatasetNodeBuilderById( String id );
 //  public DatasetNodeBuilder findDatasetNodeBuilderByIdGlobally( String id );
-//
-//  public void addProperty( String name, String value );
-//  public boolean removeProperty( String name );
-//  public List<Property> getProperties();
-//  public List<String> getPropertyNames();
-//  public String getPropertyValue( String name );
+
+  public void addProperty( String name, String value );
+  public boolean removeProperty( Property property );
+  public List<Property> getProperties();
+  public List<String> getPropertyNames();
+  public List<Property> getProperties( String name );
+  public Property getProperty( String name );
 
   /**
    * Generate the resulting Catalog.

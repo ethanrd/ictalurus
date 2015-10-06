@@ -32,45 +32,14 @@
  */
 package edu.ucar.ictalurus;
 
-import ucar.nc2.units.DateType;
-
-import java.net.URI;
-import java.util.List;
-
 /**
- * Represents a hierarchical collection of datasets.
- *
- * <p>Invariants:
- * <ul>
- *   <li> Must have a non-null name.</li>
- *   <li> Must have a non-null document base URI.</li>
- *   <li> Each Service name must be unique in the catalog.</li>
- *   <li> All Service name references must reference an existing Service.</li>
- *   <li> All Dataset ID must be unique in the catalog.</li>
- *   <li> All Dataset alias must reference an existing Dataset.</li> 
- * </ul>
+ * Represents a Property name/value pair used in various places throughout THREDDS catalogs.
  *
  * @author edavis
  * @since 4.0
  */
-public interface Catalog extends ThreddsCatalogNode
+public interface Property // extends ThreddsCatalogNode
 {
   public String getName();
-  public URI getDocBaseUri();
-  public String getVersion();
-  public DateType getExpires();
-  public DateType getLastModified();
-
-//  public List<Service> getServices();
-//  public Service getServiceByName( String name );
-//  public Service findServiceByNameGlobally( String name );
-//
-//  public List<DatasetNode> getDatasets();
-//  public DatasetNode getDatasetById( String id );
-//  public DatasetNode findDatasetByIdGlobally( String id );
-
-  public List<Property> getProperties();
-  public List<String> getPropertyNames();
-  public Property getProperty( String name );
-  public List<Property> getProperties( String name );
+  public String getValue();
 }

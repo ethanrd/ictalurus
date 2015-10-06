@@ -4,9 +4,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import ucar.nc2.units.DateType;
+import edu.ucar.ictalurus.Property;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -17,20 +19,20 @@ import static org.junit.Assert.*;
  */
 @RunWith(Parameterized.class)
 public class CatalogBuilderTest {
-    private ThreddsBuilderFactory threddsBuilderFactory;
+  private ThreddsBuilderFactory threddsBuilderFactory;
 
-    public CatalogBuilderTest( ThreddsBuilderFactory threddsBuilderFactory ) {
-      this.threddsBuilderFactory = threddsBuilderFactory;
-    }
+  public CatalogBuilderTest( ThreddsBuilderFactory threddsBuilderFactory ) {
+    this.threddsBuilderFactory = threddsBuilderFactory;
+  }
 
-    @Parameterized.Parameters
-    public static Collection<Object[]> threddsBuilderFactoryClasses() {
-      Object[][] classes = {
-          {new edu.ucar.ictalurus.straightimpl.ThreddsBuilderFactoryImpl()},
-          {new edu.ucar.ictalurus.simpleimpl.ThreddsBuilderFactoryImpl()}
-      };
-      return Arrays.asList( classes );
-    }
+  @Parameterized.Parameters
+  public static Collection<Object[]> threddsBuilderFactoryClasses() {
+    Object[][] classes = {
+        {new edu.ucar.ictalurus.straightimpl.ThreddsBuilderFactoryImpl()},
+        {new edu.ucar.ictalurus.simpleimpl.ThreddsBuilderFactoryImpl()}
+    };
+    return Arrays.asList( classes );
+  }
 
     @Test
     public void checkBasicCatalogBuilderCreation() {
@@ -72,5 +74,50 @@ public class CatalogBuilderTest {
 //      catalogBuilder.addProperty( "name", "val" );
 //      catalogBuilder.addService( "odap", ServiceType.OPENDAP, "/thredds/dodsC" );
     }
+
+  @Test
+  public void checkProperties() {
+    String docBaseUri = "http://mine/thredds/catalog.html";
+    CatalogBuilder catalogBuilder =
+        this.threddsBuilderFactory.newCatalogBuilder( "cat", docBaseUri, "1.0", null, null );
+    assertNotNull( catalogBuilder );
+
+    catalogBuilder.addProperty( "name1", "value1" );
+    catalogBuilder.addProperty( "name2", "value2" );
+    catalogBuilder.addProperty( "name3", "value3" );
+    List<Property> properties = catalogBuilder.getProperties();
+    assertEquals( 3, properties.size() );
+    Property property = properties.get( 0 );
+    assertEquals( "name1", property.getName() );
+    assertEquals( "value1", property.getValue() );
+    List<Property> propsName = catalogBuilder.getProperties( "name1" );
+    assertEquals( 1, propsName.size() );
+    assertEquals( property, propsName.get( 0 ) );
+
+    property = properties.get( 1 );
+    assertEquals( "name2", property.getName() );
+    assertEquals( "value2", property.getValue() );
+    propsName = catalogBuilder.getProperties( "name2" );
+    assertEquals( 1, propsName.size() );
+    assertEquals( property, propsName.get( 0 ) );
+
+    property = properties.get( 2 );
+    assertEquals( "name3", property.getName() );
+    assertEquals( "value3", property.getValue() );
+    propsName = catalogBuilder.getProperties( "name3" );
+    assertEquals( 1, propsName.size() );
+    assertEquals( property, propsName.get( 0 ) );
+
+    assertTrue( catalogBuilder.removeProperty( properties.get( 1) ));
+    properties = catalogBuilder.getProperties();
+    assertEquals( 2, properties.size() );
+    property = properties.get( 0 );
+    assertEquals( "name1", property.getName() );
+    assertEquals( "value1", property.getValue() );
+    property = properties.get( 1 );
+    assertEquals( "name3", property.getName() );
+    assertEquals( "value3", property.getValue() );
+
+  }
 
   }

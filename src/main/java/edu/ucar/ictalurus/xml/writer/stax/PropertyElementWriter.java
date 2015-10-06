@@ -32,10 +32,9 @@
  */
 package edu.ucar.ictalurus.xml.writer.stax;
 
-import edu.ucar.ictalurus.Catalog;
 import edu.ucar.ictalurus.Property;
-import edu.ucar.ictalurus.xml.names.CatalogElementNames;
 import edu.ucar.ictalurus.xml.names.CatalogNamespace;
+import edu.ucar.ictalurus.xml.names.PropertyElementNames;
 import edu.ucar.ictalurus.xml.writer.ThreddsXmlWriterException;
 
 import javax.xml.stream.XMLStreamException;
@@ -47,31 +46,13 @@ import javax.xml.stream.XMLStreamWriter;
  * @author edavis
  * @since 4.0
  */
-public class CatalogElementWriter implements AbstractElementWriter
+public class PropertyElementWriter implements AbstractElementWriter
 {
   private org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger( getClass() );
 
-  // ToDo How wire catalog elements together?
-//  public static enum CatalogElementWriterFactory implements AbstractElementWriterFactory
-//  {
-//    SINGLETON;
-//
-//    private List<AbstractElementWriterFactory> factories;
-//
-//    CatalogElementWriterFactory()
-//    {
-//      this.factories = Collections.emptyList();
-//    }
-//
-//    public void setElementWriterFactoryList( List<AbstractElementWriterFactory> factoryList )
-//    {
-//      this.factories = factoryList;
-//    }
-//  }
+  public PropertyElementWriter() {}
 
-  public CatalogElementWriter() {}
-
-  public void writeElement( Catalog catalog, XMLStreamWriter writer, int nestLevel )
+  public void writeElement( Property property, XMLStreamWriter writer, int nestLevel )
           throws ThreddsXmlWriterException
   {
     String indentString = StaxThreddsXmlWriter.getIndentString( nestLevel );
@@ -79,21 +60,13 @@ public class CatalogElementWriter implements AbstractElementWriter
     {
       if ( nestLevel == 0 )
       {
-        writer.writeStartDocument( "UTF-8", "1.0");
+        writer.writeStartDocument();
         writer.writeCharacters( "\n" );
       }
       else
         writer.writeCharacters( indentString );
-      
-      boolean isEmptyElement = catalog.getProperties().isEmpty();
-//              && catalog.getServices().isEmpty()
-//              && catalog.getDatasets().isEmpty();
-      if ( isEmptyElement )
-        writer.writeEmptyElement( CatalogElementNames.CatalogElement.getNamespaceURI(),
-                                  CatalogElementNames.CatalogElement.getLocalPart() );
-      else
-        writer.writeStartElement( CatalogElementNames.CatalogElement.getNamespaceURI(),
-                                  CatalogElementNames.CatalogElement.getLocalPart() );
+
+      writer.writeEmptyElement( PropertyElementNames.PropertyElement.getLocalPart() );
       if ( nestLevel == 0 )
       {
         writer.writeNamespace( CatalogNamespace.CATALOG_1_0.getStandardPrefix(),
@@ -101,36 +74,13 @@ public class CatalogElementWriter implements AbstractElementWriter
         writer.writeNamespace( CatalogNamespace.XLINK.getStandardPrefix(),
                                CatalogNamespace.XLINK.getNamespaceUri() );
       }
-      if ( catalog.getName() != null && !catalog.getName().isEmpty() )
-        writer.writeAttribute( CatalogElementNames.CatalogElement_Name.getLocalPart(), catalog.getName() );
-      if ( catalog.getVersion() != null && !catalog.getVersion().isEmpty() )
-        writer.writeAttribute( CatalogElementNames.CatalogElement_Version.getLocalPart(), catalog.getVersion() );
+      writer.writeAttribute( PropertyElementNames.PropertyElement_Name.getLocalPart(),
+                             property.getName() );
+      writer.writeAttribute( PropertyElementNames.PropertyElement_Value.getLocalPart(),
+                             property.getValue() );
 
-      if ( catalog.getExpires() != null && ! catalog.getExpires().isBlank()
-          && ! catalog.getExpires().isPresent() )
-      {
-        writer.writeAttribute( CatalogElementNames.CatalogElement_Expires.toString(),
-                               catalog.getExpires().toDateTimeStringISO());
-      }
-      if ( catalog.getLastModified() != null && ! catalog.getLastModified().isBlank()
-          && !catalog.getLastModified().isPresent())
-      {
-        writer.writeAttribute( CatalogElementNames.CatalogElement_LastModified.toString(),
-                               catalog.getLastModified().toDateTimeStringISO());
-      }
       writer.writeCharacters( "\n" );
-//      for ( Service curService : catalog.getServices() )
-//        new ServiceElementWriter().writeElement( curService, writer, nestLevel + 1 );
-      for ( Property curProperty : catalog.getProperties() )
-        new PropertyElementWriter().writeElement( curProperty, writer, nestLevel + 1 );
-
-      if ( ! isEmptyElement )
-      {
-        writer.writeCharacters( indentString );
-        writer.writeEndElement();
-        writer.writeCharacters( "\n" );
-      }
-      if ( nestLevel == 0)
+      if ( nestLevel == 0 )
         writer.writeEndDocument();
       writer.flush();
       if ( nestLevel == 0 )

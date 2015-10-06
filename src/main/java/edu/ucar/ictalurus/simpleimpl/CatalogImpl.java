@@ -35,13 +35,16 @@ package edu.ucar.ictalurus.simpleimpl;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import ucar.nc2.units.DateType;
 import edu.ucar.ictalurus.Catalog;
+import edu.ucar.ictalurus.Property;
 import edu.ucar.ictalurus.ThreddsCatalogIssueContainer;
 import edu.ucar.ictalurus.builder.BuilderIssue;
 import edu.ucar.ictalurus.builder.BuilderIssues;
 import edu.ucar.ictalurus.builder.CatalogBuilder;
+import edu.ucar.ictalurus.util.PropertyBuilderContainer;
 import edu.ucar.ictalurus.util.ThreddsCatalogIssuesImpl;
 
 /**
@@ -64,7 +67,7 @@ class CatalogImpl implements Catalog, CatalogBuilder
 //
 //  private final DatasetNodeContainer datasetContainer;
 //
-//  private final PropertyContainer propertyContainer;
+  private final PropertyBuilderContainer propertyBuilderContainer;
 
   private ThreddsCatalogIssueContainer threddsCatalogIssueContainer;
 
@@ -82,6 +85,9 @@ class CatalogImpl implements Catalog, CatalogBuilder
     this.version = version != null ? version : "";
     this.expires = expires != null ? expires : new DateType();
     this.lastModified = lastModified != null ? lastModified : new DateType();
+
+    this.propertyBuilderContainer = new PropertyBuilderContainer();
+    this.propertyBuilderContainer.setContainingBuilder( this );
 
     this.isBuildable = Buildable.DONT_KNOW;
   }
@@ -210,50 +216,42 @@ class CatalogImpl implements Catalog, CatalogBuilder
 //      throw new IllegalStateException( "This CatalogBuilder has been built." );
 //    return this.globalServiceContainer.getServiceByGloballyUniqueName( name );
 //  }
-//
-//  public void addProperty( String name, String value )
-//  {
-//    if ( this.isBuilt )
-//      throw new IllegalStateException( "This CatalogBuilder has been built." );
-//    this.propertyContainer.addProperty( name, value );
-//  }
-//
-//  public boolean removeProperty( String name )
-//  {
-//    if ( this.isBuilt )
-//      throw new IllegalStateException( "This CatalogBuilder has been built." );
-//
-//    return this.propertyContainer.removeProperty( name );
-//  }
-//
-//  public List<String> getPropertyNames()
-//  {
-//    if ( this.isBuilt )
-//      throw new IllegalStateException( "This CatalogBuilder has been built." );
-//    return this.propertyContainer.getPropertyNames();
-//  }
-//
-//  public String getPropertyValue( String name )
-//  {
-//    if ( this.isBuilt )
-//      throw new IllegalStateException( "This CatalogBuilder has been built." );
-//    return this.propertyContainer.getPropertyValue( name );
-//  }
-//
-//  public List<Property> getProperties()
-//  {
-//    if ( !this.isBuilt )
-//      throw new IllegalStateException( "This Catalog has escaped from its CatalogBuilder before build() was called." );
-//    return this.propertyContainer.getProperties();
-//  }
-//
-//  public Property getPropertyByName( String name )
-//  {
-//    if ( !this.isBuilt )
-//      throw new IllegalStateException( "This Catalog has escaped from its CatalogBuilder before build() was called." );
-//    return this.propertyContainer.getPropertyByName( name );
-//  }
-//
+
+  @Override
+  public void addProperty( String name, String value ) {
+    if ( this.isBuilt )
+      throw new IllegalStateException( "This CatalogBuilder has been built." );
+    this.propertyBuilderContainer.addProperty( name, value );
+  }
+
+  @Override
+  public boolean removeProperty( Property property ) {
+    if ( this.isBuilt )
+      throw new IllegalStateException( "This CatalogBuilder has been built." );
+
+    return this.propertyBuilderContainer.removeProperty( property );
+  }
+
+  @Override
+  public List<Property> getProperties() {
+    return this.propertyBuilderContainer.getProperties();
+  }
+
+  @Override
+  public List<String> getPropertyNames() {
+    return this.propertyBuilderContainer.getPropertyNames();
+  }
+
+  @Override
+  public List<Property> getProperties( String name ) {
+    return this.propertyBuilderContainer.getProperties( name );
+  }
+
+  @Override
+  public Property getProperty( String name ) {
+    return this.propertyBuilderContainer.getProperty( name );
+  }
+
 //  public DatasetBuilder addDataset( String name )
 //  {
 //    if ( isBuilt ) throw new IllegalStateException( "This CatalogBuilder has been built." );
@@ -352,7 +350,7 @@ class CatalogImpl implements Catalog, CatalogBuilder
 //    builderIssues.addAllIssues( this.globalServiceContainer.checkForIssues());
 //    builderIssues.addAllIssues( this.serviceContainer.checkForIssues());
 //    builderIssues.addAllIssues( this.datasetContainer.checkForIssues());
-//    builderIssues.addAllIssues( this.propertyContainer.checkForIssues());
+    builderIssues.addAllIssues( this.propertyBuilderContainer.checkForIssues());
 
     if ( builderIssues.isValid())
       this.isBuildable = Buildable.YES;
@@ -379,7 +377,7 @@ class CatalogImpl implements Catalog, CatalogBuilder
 
 //    this.serviceContainer.build();
 //    this.datasetContainer.build();
-//    this.propertyContainer.build();
+//    this.propertyBuilderContainer.build();
 
     this.threddsCatalogIssueContainer = new ThreddsCatalogIssuesImpl( builderIssues);
 

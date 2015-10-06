@@ -58,7 +58,7 @@ class CatalogElementParser extends AbstractElementParser
 {
   private final String docBaseUriString;
 
-//  private final PropertyElementParser.Factory propertyElemParserFactory;
+  private final PropertyElementParser.Factory propertyElemParserFactory;
 //  private final ServiceElementParser.Factory serviceElemParserFactory;
 //  private final DatasetElementParser.Factory datasetElemParserFactory;
 
@@ -72,7 +72,7 @@ class CatalogElementParser extends AbstractElementParser
     super( elementName, reader, builderFactory );
     this.docBaseUriString = docBaseUriString;
 
-//    this.propertyElemParserFactory = new PropertyElementParser.Factory();
+    this.propertyElemParserFactory = new PropertyElementParser.Factory();
 //    this.serviceElemParserFactory = new ServiceElementParser.Factory();
 //    this.datasetElemParserFactory = new DatasetElementParser.Factory();
   }
@@ -139,19 +139,19 @@ class CatalogElementParser extends AbstractElementParser
   {
     StartElement startElement = this.peekAtNextEventIfStartElement();
 
-//    if ( this.serviceElemParserFactory.isEventMyStartElement( startElement ) )
+    if ( this.propertyElemParserFactory.isEventMyStartElement( startElement ) )
+    {
+      PropertyElementParser parser = this.propertyElemParserFactory.getNewParser( reader,
+                                                                                  this.builderFactory,
+                                                                                  this.selfBuilder );
+      parser.parse();
+    }
+//    else if ( this.serviceElemParserFactory.isEventMyStartElement( startElement ) )
 //    {
 //      ServiceElementParser serviceElemParser = this.serviceElemParserFactory.getNewParser( reader,
 //                                                                                           this.builderFactory,
 //                                                                                           this.selfBuilder );
 //      serviceElemParser.parse();
-//    }
-//    else if ( this.propertyElemParserFactory.isEventMyStartElement( startElement ) )
-//    {
-//      PropertyElementParser parser = this.propertyElemParserFactory.getNewParser( reader,
-//                                                                                  this.builderFactory,
-//                                                                                  this.selfBuilder );
-//      parser.parse();
 //    }
 //    else if ( this.datasetElemParserFactory.isEventMyStartElement( startElement ) )
 //    { // ToDo Not sure about the null parameter?
@@ -159,12 +159,12 @@ class CatalogElementParser extends AbstractElementParser
 //                                                                                this.selfBuilder, null );
 //      parser.parse();
 //    }
-//    else
-//    {
+    else
+    {
       // ToDo Save the results in a ThreddsXmlParserIssue (Warning) and report.
       StaxThreddsXmlParserUtils.consumeElementAndConvertToXmlString( this.reader );
     }
-//  }
+  }
 
   void postProcessingAfterEndElement()
           throws ThreddsXmlParserException

@@ -2,13 +2,10 @@ package edu.ucar.ictalurus.xml;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import edu.ucar.ictalurus.Catalog;
+import edu.ucar.ictalurus.Property;
 import edu.ucar.ictalurus.builder.BuilderIssues;
 import edu.ucar.ictalurus.builder.CatalogBuilder;
 import edu.ucar.ictalurus.builder.ThreddsBuilder;
@@ -28,10 +25,14 @@ import edu.ucar.ictalurus.xml.writer.ThreddsXmlWriterFactory;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Formatter;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * _more_
@@ -128,6 +129,93 @@ public class CatalogXmlTest
     assertTrue( compareLog.toString(),
         ThreddsCompareUtils.compareCatalog( catalog, catalog2, compareLog ));
     //ThreddsCompareUtils.compareCatalogBuilders( catalog, catalog2 );
+  }
+
+  @Test
+  public void checkParseAndWriteCatalogWithProperties()
+      throws ThreddsXmlParserException, ThreddsXmlWriterException
+  {
+    String baseUriString = "http://cat2.CatalogXmlTest/simpleCatalog.xml";
+    String name = "Cat Skeleton";
+    String version = "1.0.4";
+    DateType expires = new DateType( false, new Date( System.currentTimeMillis() + 60*60*1000));
+    DateType lastModified = new DateType( false, new Date( System.currentTimeMillis() - 60*60*1000));
+
+    ThreddsXmlParserFactory threddsXmlParserFactory = ThreddsXmlParserFactory.newInstance();
+    threddsXmlParserFactory.setCatalogBuilderImpl( this.threddsBuilderFactory );
+
+    List<String> propNames = new ArrayList<String>();
+    List<String> propValues = new ArrayList<String>();
+    propNames.add( "name1");
+    propValues.add( "val1");
+    propNames.add( "name2");
+    propValues.add( "val2");
+    propNames.add( "name3");
+    propValues.add( "val3");
+    propNames.add( "name2");
+    propValues.add( "val2.1");
+    propNames.add( "name4");
+    propValues.add( "val4");
+    String xml = CatalogXmlAsStringUtils.getCatalogWithProperties( name, version, expires, lastModified, propNames, propValues );
+
+    ThreddsXmlParser cp = threddsXmlParserFactory.getParser();
+    CatalogBuilder catBuilder = cp.parseIntoBuilder( new StringReader( xml ),
+        baseUriString );
+    assertNotNull( catBuilder );
+
+    CatalogTestUtils.assertCatalogAsExpected( catBuilder, baseUriString, name, version, expires, lastModified );
+
+    List<Property> properties = catBuilder.getProperties();
+    assertNotNull( properties );
+    assertFalse( properties.isEmpty() );
+    assertEquals( 5, properties.size() );
+    Property property = properties.get( 0 );
+    assertEquals( "name1", property.getName());
+    assertEquals( "val1", property.getValue());
+    property = properties.get( 1 );
+    assertEquals( "name2", property.getName());
+    assertEquals( "val2", property.getValue());
+    property = properties.get( 2 );
+    assertEquals( "name3", property.getName());
+    assertEquals( "val3", property.getValue());
+    property = properties.get( 3 );
+    assertEquals( "name2", property.getName());
+    assertEquals( "val2.1", property.getValue() );
+    property = properties.get( 4 );
+    assertEquals( "name4", property.getName() );
+    assertEquals( "val4", property.getValue() );
+
+    properties = catBuilder.getProperties( "name1");
+    assertEquals( 1, properties.size() );
+    properties = catBuilder.getProperties( "name2");
+    assertEquals( 2, properties.size() );
+    properties = catBuilder.getProperties( "name3");
+    assertEquals( 1, properties.size() );
+    properties = catBuilder.getProperties( "name4");
+    assertEquals( 1, properties.size() );
+
+
+    BuilderIssues builderIssues = catBuilder.checkForIssues();
+    assertEquals( ThreddsBuilder.Buildable.YES, catBuilder.isBuildable() );
+    assertTrue( builderIssues.isValid() );
+    Catalog catalog = catBuilder.build();
+
+    ThreddsXmlWriter txw = ThreddsXmlWriterFactory.newInstance().createThreddsXmlWriter();
+
+    StringWriter catWriter = new StringWriter();
+    txw.writeCatalog( catalog, catWriter );
+
+    CatalogBuilder catBuilder2 = cp.parseIntoBuilder( new StringReader( catWriter.toString()), baseUriString );
+    BuilderIssues builderIssues2 = catBuilder2.checkForIssues();
+    assertEquals( ThreddsBuilder.Buildable.YES, catBuilder2.isBuildable() );
+    assertTrue( builderIssues2.isValid() );
+    Catalog catalog2 = catBuilder2.build();
+
+    Formatter compareLog = new Formatter();
+    assertTrue( compareLog.toString(),
+        ThreddsCompareUtils.compareCatalog( catalog, catalog2, compareLog ));
+    //ThreddsCompareUtils.compareCatalogBuilders( catalog, catalog2 );
+
   }
 
 //  @Test

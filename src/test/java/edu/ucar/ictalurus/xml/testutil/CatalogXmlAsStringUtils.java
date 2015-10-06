@@ -2,6 +2,8 @@ package edu.ucar.ictalurus.xml.testutil;
 
 import ucar.nc2.units.DateType;
 
+import java.util.List;
+
 /**
  * MORE
  *
@@ -19,6 +21,18 @@ public class CatalogXmlAsStringUtils {
 
   public static String getCatalog( String name, String version, DateType expires, DateType lastModified ) {
     return wrapThreddsXmlInCatalog( "", name, version, expires, lastModified );
+  }
+
+  public static String getCatalogWithProperties( String name, String version,
+                                                 DateType expires, DateType lastModified,
+                                                 List<String> propNames, List<String> propValues ) {
+    StringBuilder propertiesSB = new StringBuilder();
+    int numProps = propNames.size() > propValues.size() ? propNames.size() : propValues.size();
+    for ( int i = 0; i < numProps ; i++ ) {
+      propertiesSB.append( String.format( "  <property name='%s' value='%s' />\n",
+          propNames.get( i ), propValues.get( i ) ) );
+    }
+    return wrapThreddsXmlInCatalog( propertiesSB.toString(), name, version, expires, lastModified );
   }
 
   /**

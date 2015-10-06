@@ -1,9 +1,11 @@
 package edu.ucar.ictalurus.util;
 
+import edu.ucar.ictalurus.Property;
 import edu.ucar.ictalurus.builder.CatalogBuilder;
 import edu.ucar.ictalurus.Catalog;
 
 import java.util.Formatter;
+import java.util.List;
 
 /**
  * _MORE_
@@ -70,7 +72,9 @@ public class ThreddsCompareUtils {
     // }
 
     return ok;
-  }private boolean doCompareCatalogs( Catalog originalCat, Catalog altCat ) {
+  }
+
+  private boolean doCompareCatalogs( Catalog originalCat, Catalog altCat ) {
     if ( originalCat == null || altCat == null )
       throw new IllegalArgumentException( "Catalogs to compare may not be null." );
 
@@ -101,9 +105,38 @@ public class ThreddsCompareUtils {
       ok = false;
     }
 
-    // for ( Property curProperty : originalCB.getProperties() ) {
-    //   ok &= doCompareProperties(... );
-    // }
+    List<Property> origProperties = originalCat.getProperties();
+    List<Property> altProperties = altCat.getProperties();
+    if ( origProperties.size() != altProperties.size() ) {
+      this.comparisonLog.format( "Catalog properties not the same size: first[%s], second [%s]",
+          origProperties.size(), altProperties.size());
+      ok = false;
+    } else {
+      for ( int i = 0; i < origProperties.size(); i++ ) {
+        Property curOrigProp = origProperties.get( i );
+        Property curAltProp = altProperties.get( i );
+        ok &= doCompareProperty( curOrigProp, curAltProp );
+      }
+    }
+
+    return ok;
+  }
+
+  private boolean doCompareProperty( Property originalProperty, Property altPropery ) {
+    if ( originalProperty == null || altPropery == null )
+      throw new IllegalArgumentException( "Properties to compare may not be null." );
+
+    boolean ok = true;
+    if ( ! originalProperty.getName().equals( originalProperty.getName() )) {
+      this.comparisonLog.format( "Property names not the same: first [%s], second [%s]",
+          originalProperty.getName(), altPropery.getName() );
+      ok = false;
+    }
+    if ( ! originalProperty.getValue().equals( altPropery.getValue() )) {
+      this.comparisonLog.format( "Property values not the same; first [%s], second [%s]",
+          originalProperty.getValue(), altPropery.getValue());
+      ok = false;
+    }
 
     return ok;
   }
