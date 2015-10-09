@@ -1,6 +1,7 @@
 package edu.ucar.ictalurus.util;
 
 import edu.ucar.ictalurus.Property;
+import edu.ucar.ictalurus.Service;
 import edu.ucar.ictalurus.builder.CatalogBuilder;
 import edu.ucar.ictalurus.Catalog;
 
@@ -22,12 +23,28 @@ public class ThreddsCompareUtils {
     return threddsCompareUtils.doCompareCatalogBuilders( orginalCB, altCB );
   }
 
-  public static boolean compareCatalog( Catalog orginalCat, Catalog altCat, Formatter compareLog) {
+  public static boolean compareCatalogs( Catalog orginalCat, Catalog altCat, Formatter compareLog ) {
     if ( compareLog == null )
       throw new IllegalArgumentException( "Must supply a compareLog." );
 
     ThreddsCompareUtils threddsCompareUtils = new ThreddsCompareUtils( compareLog);
     return threddsCompareUtils.doCompareCatalogs( orginalCat, altCat );
+  }
+
+  public static boolean compareProperties( Property originalProperty, Property altProperty, Formatter compareLog ) {
+    if ( compareLog == null )
+      throw new IllegalArgumentException( "Must supply a compareLog." );
+
+    ThreddsCompareUtils threddsCompareUtils = new ThreddsCompareUtils( compareLog);
+    return threddsCompareUtils.doCompareProperties( originalProperty, altProperty );
+  }
+
+  public static boolean compareServices( Service originalService, Service altService, Formatter compareLog) {
+    if ( compareLog == null )
+      throw new IllegalArgumentException( "Must supply a compareLog." );
+
+    ThreddsCompareUtils threddsCompareUtils = new ThreddsCompareUtils( compareLog);
+    return threddsCompareUtils.doCompareServices( originalService, altService );
   }
 
   private Formatter comparisonLog;
@@ -105,37 +122,112 @@ public class ThreddsCompareUtils {
       ok = false;
     }
 
-    List<Property> origProperties = originalCat.getProperties();
+    List<Property> originalProperties = originalCat.getProperties();
     List<Property> altProperties = altCat.getProperties();
-    if ( origProperties.size() != altProperties.size() ) {
+    ok &= doCompareListOfProperties( originalProperties, altProperties );
+
+    List<Service> originalServices = originalCat.getServices();
+    List<Service> altServices = altCat.getServices();
+    ok &= doCompareListOfServices( originalServices, altServices );
+
+    return ok;
+  }
+
+  private boolean doCompareProperties( Property originalProperty, Property altProperty ) {
+    if ( originalProperty == null || altProperty == null )
+      throw new IllegalArgumentException( "Properties to compare may not be null." );
+
+    boolean ok = true;
+    if ( ! originalProperty.getName().equals( altProperty.getName() )) {
+      this.comparisonLog.format( "Property names not the same: first [%s], second [%s]",
+          originalProperty.getName(), altProperty.getName() );
+      ok = false;
+    }
+    if ( ! originalProperty.getValue().equals( altProperty.getValue() )) {
+      this.comparisonLog.format( "Property values not the same; first [%s], second [%s]",
+          originalProperty.getValue(), altProperty.getValue());
+      ok = false;
+    }
+
+    return ok;
+  }
+
+  private boolean doCompareListOfProperties( List<Property> originalProperties, List<Property> altProperties ) {
+    if ( originalProperties == null || altProperties == null )
+      throw new IllegalArgumentException( "Lists of Properties to compare may not be null." );
+
+    boolean ok = true;
+    if ( originalProperties.size() != altProperties.size() ) {
       this.comparisonLog.format( "Catalog properties not the same size: first[%s], second [%s]",
-          origProperties.size(), altProperties.size());
+                                 originalProperties.size(), altProperties.size());
       ok = false;
     } else {
-      for ( int i = 0; i < origProperties.size(); i++ ) {
-        Property curOrigProp = origProperties.get( i );
+      for ( int i = 0; i < originalProperties.size(); i++ ) {
+        Property curOrigProp = originalProperties.get( i );
         Property curAltProp = altProperties.get( i );
-        ok &= doCompareProperty( curOrigProp, curAltProp );
+        ok &= doCompareProperties( curOrigProp, curAltProp );
       }
     }
 
     return ok;
   }
 
-  private boolean doCompareProperty( Property originalProperty, Property altPropery ) {
-    if ( originalProperty == null || altPropery == null )
-      throw new IllegalArgumentException( "Properties to compare may not be null." );
+  private boolean doCompareServices( Service originalService, Service altService) {
+    if (originalService == null || altService == null )
+      throw new IllegalArgumentException( "Services to compare may not be null." );
 
     boolean ok = true;
-    if ( ! originalProperty.getName().equals( originalProperty.getName() )) {
-      this.comparisonLog.format( "Property names not the same: first [%s], second [%s]",
-          originalProperty.getName(), altPropery.getName() );
+    if ( ! originalService.getName().equals( altService.getName() )) {
+      this.comparisonLog.format( "Service names not the same: first [%s], second [%s]", originalService.getName(), altService.getName() );
       ok = false;
     }
-    if ( ! originalProperty.getValue().equals( altPropery.getValue() )) {
-      this.comparisonLog.format( "Property values not the same; first [%s], second [%s]",
-          originalProperty.getValue(), altPropery.getValue());
+    if ( ! originalService.getType().equals( altService.getType() )) {
+      this.comparisonLog.format( "Service types not the same: first [%s], second [%s]", originalService.getType(), altService.getType() );
       ok = false;
+    }
+    if ( ! originalService.getBaseUri().equals( altService.getBaseUri() )) {
+      this.comparisonLog.format( "Service baseUri-s not the same: first [%s], second [%s]", originalService.getBaseUri(), altService.getBaseUri() );
+      ok = false;
+    }
+    if ( ! originalService.getDescription().equals( altService.getDescription() )) {
+      this.comparisonLog.format( "Service descriptions not the same: first [%s], second [%s]", originalService.getDescription(), altService.getDescription() );
+      ok = false;
+    }
+    if ( ! originalService.getSuffix().equals( altService.getSuffix() )) {
+      this.comparisonLog.format( "Service suffixes not the same: first [%s], second [%s]", originalService.getSuffix(), altService.getSuffix() );
+      ok = false;
+    }
+
+    List<Property> originalProperties = originalService.getProperties();
+    List<Property> altProperties = altService.getProperties();
+    if ( ! doCompareListOfProperties( originalProperties, altProperties ) ) {
+      ok = false;
+    }
+    ok &= doCompareListOfProperties( originalProperties, altProperties );
+
+    if ( ! originalService.getSuffix().equals( altService.getSuffix() )) {
+      this.comparisonLog.format( "Service suffixes not the same: first [%s], second [%s]", originalService.getSuffix(), altService.getSuffix() );
+      ok = false;
+    }
+
+    return ok;
+  }
+
+  private boolean doCompareListOfServices( List<Service> originalServices, List<Service> altServices ) {
+    if ( originalServices == null || altServices == null )
+      throw new IllegalArgumentException( "Lists of Services to compare may not be null." );
+
+    boolean ok = true;
+    if ( originalServices.size() != altServices.size() ) {
+      this.comparisonLog.format( "Catalogs have different number of services: first[%s], second [%s]",
+                                 originalServices.size(), altServices.size());
+      ok = false;
+    } else {
+      for ( int i = 0; i < originalServices.size(); i++ ) {
+        Service curOriginalService = originalServices.get( i );
+        Service curAltService = altServices.get( i );
+        ok &= doCompareServices( curOriginalService, curAltService );
+      }
     }
 
     return ok;

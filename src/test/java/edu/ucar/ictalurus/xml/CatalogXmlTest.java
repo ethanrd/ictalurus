@@ -127,7 +127,7 @@ public class CatalogXmlTest
 
     Formatter compareLog = new Formatter();
     assertTrue( compareLog.toString(),
-        ThreddsCompareUtils.compareCatalog( catalog, catalog2, compareLog ));
+        ThreddsCompareUtils.compareCatalogs( catalog, catalog2, compareLog ));
     //ThreddsCompareUtils.compareCatalogBuilders( catalog, catalog2 );
   }
 
@@ -213,7 +213,7 @@ public class CatalogXmlTest
 
     Formatter compareLog = new Formatter();
     assertTrue( compareLog.toString(),
-        ThreddsCompareUtils.compareCatalog( catalog, catalog2, compareLog ));
+        ThreddsCompareUtils.compareCatalogs( catalog, catalog2, compareLog ));
     //ThreddsCompareUtils.compareCatalogBuilders( catalog, catalog2 );
 
   }

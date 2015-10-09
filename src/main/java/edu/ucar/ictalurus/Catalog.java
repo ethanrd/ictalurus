@@ -67,7 +67,7 @@ public interface Catalog extends ThreddsCatalogNode
   public List<Property> getProperties( String name );
 
   public List<Service> getServices();
-  public Service getServiceByName( String name );
+//  public Service getServiceByName( String name );
   public Service findReferencableServiceByName( String name );
 
 //  public List<DatasetNode> getDatasets();

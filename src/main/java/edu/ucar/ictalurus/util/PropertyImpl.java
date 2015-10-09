@@ -27,4 +27,26 @@ public class PropertyImpl implements Property {
   public String getValue() {
     return this.value;
   }
+
+  @Override
+  public boolean equals( Object o )
+  {
+    if ( this == o ) return true;
+    if ( o == null || getClass() != o.getClass() ) return false;
+
+    PropertyImpl property = (PropertyImpl) o;
+
+    if ( !name.equals( property.name ) ) return false;
+    if ( !value.equals( property.value ) ) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = name.hashCode();
+    result = 31 * result + value.hashCode();
+    return result;
+  }
 }

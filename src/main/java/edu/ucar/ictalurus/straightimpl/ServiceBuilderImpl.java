@@ -85,19 +85,9 @@ class ServiceBuilderImpl implements ServiceBuilder
   private BuilderIssues builderIssues;
   private Buildable isBuildable;
 
-  ServiceBuilderImpl( String name, ServiceType type, String baseUri, CatalogWideServiceBuilderTracker  ) {
-
-  }
-
-  /**
-   * Constructs a ServiceBuilderImpl.
-   *
-   * @param name the name of the ServiceBuilder
-   * @param type the ServiceType of the ServiceBuilder
-   * @param baseUri the baseUri of the ServiceBuilder
-   */
-  ServiceBuilderImpl( String name, ServiceType type, String baseUri )
-  {
+  ServiceBuilderImpl( String name, ServiceType type, String baseUri, ServiceBuilderContainer serviceBuilderContainer ) {
+    if ( serviceBuilderContainer == null )
+      throw new IllegalArgumentException( "ServiceBuilderContainer may not be null, call other constructor if no containing catalog." );
     this.name = name != null ? name : "";
     this.description = "";
     this.type = type != null ? type : ServiceType.NONE;
@@ -105,7 +95,15 @@ class ServiceBuilderImpl implements ServiceBuilder
     this.suffix = "";
     this.propertyBuilderContainer = null;
 
+    this.serviceBuilderContainer = serviceBuilderContainer;
+    this.isRootServiceContainer = false;
+
     this.isBuildable = Buildable.DONT_KNOW;
+  }
+
+  ServiceBuilderImpl( String name, ServiceType type, String baseUri ) {
+    this( name, type, baseUri, new ServiceBuilderContainer());
+    this.isRootServiceContainer = true;
   }
 
   public void initialize() {
@@ -213,34 +211,34 @@ class ServiceBuilderImpl implements ServiceBuilder
     return this.propertyBuilderContainer.getProperty(name);
   }
 
-  public ServiceBuilder addService( String name, ServiceType type, String baseUri ) {
-    if ( this.serviceBuilderContainer == null )
-      this.initialize();
-
-    this.isBuildable = Buildable.DONT_KNOW;
-
-    ServiceBuilderImpl serviceBuilder = new ServiceBuilderImpl( name, type, baseUri );
-    this.serviceBuilderContainer.addService( serviceBuilder );
-    return serviceBuilder;
-  }
-
-  public boolean removeService( ServiceBuilder serviceBuilder ) {
-    if ( serviceBuilder == null )
-      return false;
-
-    if ( this.serviceBuilderContainer == null )
-      this.initialize();
-
-    this.isBuildable = Buildable.DONT_KNOW;
-    return this.serviceBuilderContainer.removeService( serviceBuilder );
-  }
-
-  public List<ServiceBuilder> getServiceBuilders() {
-    if ( this.serviceBuilderContainer == null )
-      this.initialize();
-
-    return this.serviceBuilderContainer.getServices();
-  }
+//  public ServiceBuilder addService( String name, ServiceType type, String baseUri ) {
+//    if ( this.serviceBuilderContainer == null )
+//      this.initialize();
+//
+//    this.isBuildable = Buildable.DONT_KNOW;
+//
+//    ServiceBuilderImpl serviceBuilder = new ServiceBuilderImpl( name, type, baseUri );
+//    this.serviceBuilderContainer.addService( serviceBuilder );
+//    return serviceBuilder;
+//  }
+//
+//  public boolean removeService( ServiceBuilder serviceBuilder ) {
+//    if ( serviceBuilder == null )
+//      return false;
+//
+//    if ( this.serviceBuilderContainer == null )
+//      this.initialize();
+//
+//    this.isBuildable = Buildable.DONT_KNOW;
+//    return this.serviceBuilderContainer.removeService( serviceBuilder );
+//  }
+//
+//  public List<ServiceBuilder> getServiceBuilders() {
+//    if ( this.serviceBuilderContainer == null )
+//      this.initialize();
+//
+//    return this.serviceBuilderContainer.getServices();
+//  }
 
 //  public ServiceBuilder getServiceBuilderByName( String name ) {
 //    if ( this.serviceBuilderContainer == null )
@@ -250,10 +248,11 @@ class ServiceBuilderImpl implements ServiceBuilder
 //  }
 
   public ServiceBuilder findReferencableServiceBuilderByName( String name ) {
-    if ( this.catalogWideServiceBuilderTracker == null )
-      this.initialize();
-
-    return this.catalogWideServiceBuilderTracker.getReferenceableService( name );
+//    if ( this.catalogWideServiceBuilderTracker == null )
+//      this.initialize();
+//
+//    return this.catalogWideServiceBuilderTracker.getReferenceableService( name );
+    return null;
   }
 
   public Buildable isBuildable() {

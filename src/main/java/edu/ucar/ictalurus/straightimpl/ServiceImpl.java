@@ -65,7 +65,7 @@ final class ServiceImpl implements Service
 //  private final ServiceContainer serviceContainer;
 //
 //  private final CatalogWideServiceTracker catalogWideServiceTracker;
-  private final boolean isRootContainer;
+//  private final boolean isRootContainer;
 
   private final ThreddsCatalogIssueContainer threddsCatalogIssueContainer;
 
@@ -92,7 +92,7 @@ final class ServiceImpl implements Service
       throw new IllegalArgumentException( "Name must not be null or empty.");
     if ( type == null )
       throw new IllegalArgumentException( "Service type must not be null.");
-    if ( propertyBuilderContainer.isBuildable() != ThreddsBuilder.Buildable.YES )
+    if ( propertyBuilderContainer != null && propertyBuilderContainer.isBuildable() != ThreddsBuilder.Buildable.YES )
       throw new IllegalArgumentException( "ServiceBuilder can't be built when PropertyBuilderContainer is not buildable.");
 //    if ( serviceBuilderContainer.isBuildable() != ThreddsBuilder.Buildable.YES )
 //      throw new IllegalArgumentException( "ServiceBuilder can't be built when ServiceBuilderContainer is not buildable.");
@@ -109,8 +109,8 @@ final class ServiceImpl implements Service
     }
     this.suffix = suffix == null ? "" : suffix;
     this.propertyBuilderContainer = propertyBuilderContainer;
-//    this.serviceContainer = serviceBuilderContainer.build();
-    this.isRootContainer = isRootContainer;
+//    this.serviceContainer = serviceBuilderContainer != null ? serviceBuilderContainer.build() : null;
+//    this.isRootContainer = isRootContainer;
 //    if ( this.isRootContainer )
 //      this.catalogWideServiceTracker = catalogWideServiceBuilderTracker.build();
 //    else
@@ -169,12 +169,12 @@ final class ServiceImpl implements Service
 //  public List<Service> getServices() {
 //    return this.serviceContainer.getServices();
 //  }
-//
+
 //  public Service getService(String name) {
 //    return this.serviceContainer.getServiceByName( name );
 //  }
-//
-//  public Service findServiceByNameGlobally( String name ) {
+
+//  public Service findReferencableServiceByName( String name ) {
 //    return this.catalogWideServiceTracker.getServiceByGloballyUniqueName( name );
 //  }
 

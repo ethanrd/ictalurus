@@ -35,6 +35,7 @@ package edu.ucar.ictalurus.straightimpl;
 import ucar.nc2.units.DateType;
 import edu.ucar.ictalurus.Catalog;
 import edu.ucar.ictalurus.Property;
+import edu.ucar.ictalurus.Service;
 import edu.ucar.ictalurus.ThreddsCatalogIssueContainer;
 import edu.ucar.ictalurus.builder.BuilderIssues;
 import edu.ucar.ictalurus.builder.ThreddsBuilder;
@@ -127,17 +128,21 @@ class CatalogImpl implements Catalog
     return this.lastModified;
   }
 
-//  public List<Service> getServices() {
-//    return this.serviceContainer.getServices();
-//  }
-//
+  @Override
+  public List<Service> getServices() {
+    return this.serviceContainer.getServices();
+  }
+
 //  public Service getServiceByName( String name ) {
 //    return this.serviceContainer.getServiceByName( name );
 //  }
-//
-//  public Service findServiceByNameGlobally( String name ) {
+
+  @Override
+  public Service findReferencableServiceByName( String name )
+  {
 //    return this.catalogWideServiceTracker.getServiceByGloballyUniqueName( name );
-//  }
+    return this.serviceContainer.findReferencableServiceByName( name );
+  }
 
   @Override
   public List<Property> getProperties() {

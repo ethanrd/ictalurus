@@ -46,16 +46,17 @@ import java.util.*;
 public class ServiceContainer
 {
   private final List<Service> services;
-  private final CatalogWideServiceTracker catalogWideServiceTracker;
+  //private final CatalogWideServiceTracker catalogWideServiceTracker;
 
-  ServiceContainer( List<ServiceBuilder> serviceBuilderList ) {
-    this(serviceBuilderList, new CatalogWideServiceTracker());
-  }
+//  ServiceContainer( List<ServiceBuilder> serviceBuilderList ) {
+//    this(serviceBuilderList, new CatalogWideServiceTracker());
+//  }
 
-  ServiceContainer( List<ServiceBuilder> serviceBuilderList, CatalogWideServiceBuilderTracker cwsbt) {
+  ServiceContainer( List<ServiceBuilder> serviceBuilderList)//, CatalogWideServiceBuilderTracker cwsbt)
+  {
     if ( serviceBuilderList == null || serviceBuilderList.isEmpty() ) {
       this.services = null;
-      this.catalogWideServiceTracker = null;
+      //this.catalogWideServiceTracker = null;
     }
     else {
       List<Service> tmpServiceList = new ArrayList<Service>();
@@ -70,10 +71,10 @@ public class ServiceContainer
     }
   }
 
-  ServiceContainer( List<ServiceBuilder> serviceBuilderList, CatalogWideServiceBuilderTracker cwsbt,
-                    CatalogWideServiceTracker catalogWideServiceTracker ) {
-
-  }
+//  ServiceContainer( List<ServiceBuilder> serviceBuilderList, CatalogWideServiceBuilderTracker cwsbt,
+//                    CatalogWideServiceTracker catalogWideServiceTracker ) {
+//
+//  }
 
   boolean isEmpty() {
     return this.services == null || this.services.isEmpty();
@@ -92,7 +93,12 @@ public class ServiceContainer
   }
 
   public Service findReferencableServiceByName( String serviceName) {
-    return this.catalogWideServiceTracker.getReferenceableService( serviceName );
+    //return this.catalogWideServiceTracker.getReferenceableService( serviceName );
+    for (Service curSB : this.services ) {
+      if ( curSB.getName().equals( serviceName ) )
+        return curSB;
+    }
+    return null;
   }
 
 }

@@ -156,7 +156,8 @@ class ServiceImpl implements Service, ServiceBuilder
   }
 
   public String getBaseUriAsString() {
-    if ( this.isBuilt ) throw new IllegalStateException( "This ServiceBuilder has been built." );
+    if ( this.isBuilt )
+      throw new IllegalStateException( "This ServiceBuilder has been built." );
     return this.baseUriAsString;
   }
 
@@ -301,7 +302,7 @@ class ServiceImpl implements Service, ServiceBuilder
     // Check that the baseUri is a valid URI.
     if ( ! this.baseUriAsString.isEmpty()) {
       try {
-        new URI( this.baseUriAsString);
+        baseUri = new URI( this.baseUriAsString);
       } catch (URISyntaxException e) {
         builderIssues.addIssue( new BuilderIssue( BuilderIssue.Severity.ERROR, "The baseUri [" + this.baseUriAsString + "] of this Service [" + this.name + "] must be a valid URI.", this));
       }

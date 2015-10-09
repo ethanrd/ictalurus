@@ -97,8 +97,8 @@ public interface Service extends ThreddsCatalogNode
    *
    * @return the List of Service Objects nested in this service, may be an empty list but not null.
    */
-  public List<Service> getServices();
+//  public List<Service> getServices();
 
-  public Service getService( String name );
-  public Service findReferencableServiceByName( String name );
+//  public Service getService( String name );
+//  public Service findReferencableServiceByName( String name );
 }
