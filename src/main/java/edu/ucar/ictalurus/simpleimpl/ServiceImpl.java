@@ -36,7 +36,6 @@ import edu.ucar.ictalurus.ServiceType;
 import edu.ucar.ictalurus.Property;
 import edu.ucar.ictalurus.Service;
 import edu.ucar.ictalurus.ThreddsCatalogIssueContainer;
-import edu.ucar.ictalurus.builder.BuilderException;
 import edu.ucar.ictalurus.builder.BuilderIssue;
 import edu.ucar.ictalurus.builder.BuilderIssues;
 import edu.ucar.ictalurus.builder.ServiceBuilder;
@@ -45,7 +44,7 @@ import edu.ucar.ictalurus.util.ThreddsCatalogIssuesImpl;
 //import edu.ucar.ictalurus.simpleimpl.BuilderIssueContainer;
 //import edu.ucar.ictalurus.simpleimpl.GlobalServiceContainer;
 //import edu.ucar.ictalurus.simpleimpl.PropertyContainer;
-//import edu.ucar.ictalurus.simpleimpl.ServiceContainer;
+//import edu.ucar.ictalurus.simpleimpl.ServiceContainerHelper;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -69,7 +68,7 @@ class ServiceImpl implements Service, ServiceBuilder
 
   private PropertyBuilderContainer propertyBuilderContainer;
 
-  private ServiceContainer serviceContainer;
+  private ServiceContainerHelper serviceContainerHelper;
 
 //  private final GlobalServiceContainer globalServiceContainer;
   private final boolean isRootContainer;
@@ -112,7 +111,7 @@ class ServiceImpl implements Service, ServiceBuilder
 //      this.globalServiceContainer = globalServiceContainer;
 //    }
 
-    this.serviceContainer = new ServiceContainer(); // this.globalServiceContainer );
+    this.serviceContainerHelper = new ServiceContainerHelper(); // this.globalServiceContainer );
   }
 
   public void setName( String name ) {
@@ -224,7 +223,7 @@ class ServiceImpl implements Service, ServiceBuilder
 
   public ServiceBuilder addService( String name, ServiceType type, String baseUri ) {
     this.isBuildable = Buildable.DONT_KNOW;
-    return this.serviceContainer.addService( name, type, baseUri );
+    return this.serviceContainerHelper.addService( name, type, baseUri );
   }
 
   public boolean removeService( ServiceBuilder serviceBuilder )
@@ -233,13 +232,13 @@ class ServiceImpl implements Service, ServiceBuilder
       return false;
 
     this.isBuildable = Buildable.DONT_KNOW;
-    return this.serviceContainer.removeService( (ServiceImpl) serviceBuilder );
+    return this.serviceContainerHelper.removeService( (ServiceImpl) serviceBuilder );
   }
 
   public List<ServiceBuilder> getServiceBuilders()
   {
     if ( this.isBuilt ) throw new IllegalStateException( "This ServiceBuilder has been built." );
-    return this.serviceContainer.getServiceBuilders();
+    return this.serviceContainerHelper.getServiceBuilders();
   }
 
   @Override
@@ -254,7 +253,7 @@ class ServiceImpl implements Service, ServiceBuilder
   {
     if ( !this.isBuilt )
       throw new IllegalStateException( "This Service has escaped from its ServiceBuilder without being built." );
-    return this.serviceContainer.getServices();
+    return this.serviceContainerHelper.getServices();
   }
 
   @Override
@@ -343,7 +342,7 @@ class ServiceImpl implements Service, ServiceBuilder
       return this;
 
     // Check subordinates.
-//    this.serviceContainer.build();
+//    this.serviceContainerHelper.build();
 
     this.threddsCatalogIssueContainer = new ThreddsCatalogIssuesImpl( builderIssues);
 

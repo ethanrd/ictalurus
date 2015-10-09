@@ -38,9 +38,10 @@ import edu.ucar.ictalurus.Service;
 import edu.ucar.ictalurus.builder.BuilderIssue;
 import edu.ucar.ictalurus.builder.BuilderIssues;
 import edu.ucar.ictalurus.builder.ServiceBuilder;
+import edu.ucar.ictalurus.builder.ServiceBuilderContainer;
 import edu.ucar.ictalurus.util.PropertyBuilderContainer;
 //import edu.ucar.ictalurus.straightimpl.PropertyBuilderContainer;
-//import edu.ucar.ictalurus.straightimpl.ServiceBuilderContainer;
+//import edu.ucar.ictalurus.straightimpl.ServiceBuilderContainerHelper;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -63,7 +64,14 @@ class ServiceBuilderImpl implements ServiceBuilder
 
   private PropertyBuilderContainer propertyBuilderContainer;
 
-  private ServiceBuilderContainer serviceBuilderContainer;
+  /**
+   * The top-level {@link ServiceBuilderContainer} from which to find a referencable
+   * ServiceBuilder by name. If equal to this, indicates that this ServiceBuilder is
+   * not contained by a CatalogBuilder.
+   */
+  private final ServiceBuilderContainer rootServiceBuilderContainer;
+
+  private ServiceBuilderContainerHelper serviceBuilderContainerHelper;
 
 //  /**
 //   * Generally, a CatalogBuilder will create the CatalogWideServiceBuilderTracker
@@ -74,20 +82,12 @@ class ServiceBuilderImpl implements ServiceBuilder
 //   */
 //  private CatalogWideServiceBuilderTracker catalogWideServiceBuilderTracker;
 
-  /**
-   * When isRootServiceContainer is true, it indicates that this ServiceBuilder is not
-   * contained by a CatalogBuilder and it has created a
-   * CatalogWideServiceBuilderTracker that it will pass to any contained
-   * ServiceBuilders.
-   */
-  private boolean isRootServiceContainer;
-
   private BuilderIssues builderIssues;
   private Buildable isBuildable;
 
-  ServiceBuilderImpl( String name, ServiceType type, String baseUri, ServiceBuilderContainer serviceBuilderContainer ) {
-    if ( serviceBuilderContainer == null )
-      throw new IllegalArgumentException( "ServiceBuilderContainer may not be null, call other constructor if no containing catalog." );
+  ServiceBuilderImpl( String name, ServiceType type, String baseUri, ServiceBuilderContainer rootServiceBuilderContainer ) {
+    if ( serviceBuilderContainerHelper == null )
+      throw new IllegalArgumentException( "ServiceBuilderContainerHelper may not be null, call other constructor if no containing catalog." );
     this.name = name != null ? name : "";
     this.description = "";
     this.type = type != null ? type : ServiceType.NONE;
@@ -95,15 +95,13 @@ class ServiceBuilderImpl implements ServiceBuilder
     this.suffix = "";
     this.propertyBuilderContainer = null;
 
-    this.serviceBuilderContainer = serviceBuilderContainer;
-    this.isRootServiceContainer = false;
+    this.rootServiceBuilderContainer = rootServiceBuilderContainer != null ? rootServiceBuilderContainer : this;
 
     this.isBuildable = Buildable.DONT_KNOW;
   }
 
   ServiceBuilderImpl( String name, ServiceType type, String baseUri ) {
-    this( name, type, baseUri, new ServiceBuilderContainer());
-    this.isRootServiceContainer = true;
+    this( name, type, baseUri, null);
   }
 
   public void initialize() {
@@ -122,7 +120,7 @@ class ServiceBuilderImpl implements ServiceBuilder
 //      this.catalogWideServiceBuilderTracker = catalogWideServiceBuilderTracker;
 //    }
 //
-//    this.serviceBuilderContainer = new ServiceBuilderContainer( this.catalogWideServiceBuilderTracker);
+//    this.serviceBuilderContainerHelper = new ServiceBuilderContainerHelper( this.catalogWideServiceBuilderTracker);
 //  }
 
   public void setName( String name ) {
@@ -212,13 +210,13 @@ class ServiceBuilderImpl implements ServiceBuilder
   }
 
   public ServiceBuilder addService( String name, ServiceType type, String baseUri ) {
-    if ( this.serviceBuilderContainer == null )
+    if ( this.serviceBuilderContainerHelper == null )
       this.initialize();
 
     this.isBuildable = Buildable.DONT_KNOW;
 
     ServiceBuilderImpl serviceBuilder = new ServiceBuilderImpl( name, type, baseUri );
-    this.serviceBuilderContainer.addService( serviceBuilder );
+    this.serviceBuilderContainerHelper.addService( serviceBuilder );
     return serviceBuilder;
   }
 
@@ -226,25 +224,25 @@ class ServiceBuilderImpl implements ServiceBuilder
     if ( serviceBuilder == null )
       return false;
 
-    if ( this.serviceBuilderContainer == null )
+    if ( this.serviceBuilderContainerHelper == null )
       this.initialize();
 
     this.isBuildable = Buildable.DONT_KNOW;
-    return this.serviceBuilderContainer.removeService( serviceBuilder );
+    return this.serviceBuilderContainerHelper.removeService( serviceBuilder );
   }
 
   public List<ServiceBuilder> getServiceBuilders() {
-    if ( this.serviceBuilderContainer == null )
+    if ( this.serviceBuilderContainerHelper == null )
       this.initialize();
 
-    return this.serviceBuilderContainer.getServices();
+    return this.serviceBuilderContainerHelper.getServices();
   }
 
 //  public ServiceBuilder getServiceBuilderByName( String name ) {
-//    if ( this.serviceBuilderContainer == null )
+//    if ( this.serviceBuilderContainerHelper == null )
 //      this.initialize();
 //
-//    return this.serviceBuilderContainer.getServiceBuilderByName( name );
+//    return this.serviceBuilderContainerHelper.getServiceBuilderByName( name );
 //  }
 
   public ServiceBuilder findReferencableServiceBuilderByName( String name ) {
@@ -292,7 +290,7 @@ class ServiceBuilderImpl implements ServiceBuilder
     }
 
     // Check subordinates.
-//    builderIssues.addAllIssues( this.serviceBuilderContainer.checkForIssues());
+//    builderIssues.addAllIssues( this.serviceBuilderContainerHelper.checkForIssues());
     if ( this.propertyBuilderContainer != null )
       builderIssues.addAllIssues( this.propertyBuilderContainer.checkForIssues());
 //    if ( this.isRootServiceContainer )
@@ -301,7 +299,7 @@ class ServiceBuilderImpl implements ServiceBuilder
     // Various checks on this service itself.
     if ( this.getType() == ServiceType.COMPOUND ) {
       // Compound services should contain nested services.
-//      if ( this.serviceBuilderContainer.isEmpty()) {
+//      if ( this.serviceBuilderContainerHelper.isEmpty()) {
 //        builderIssues.addIssue( new BuilderIssue( BuilderIssue.Severity.WARNING, "No contained services in this compound service.", this));
 //      }
       // Compound services should not have a baseURI.
@@ -313,7 +311,7 @@ class ServiceBuilderImpl implements ServiceBuilder
         builderIssues.addIssue( new BuilderIssue( BuilderIssue.Severity.WARNING, "Non-compound services must have base URI.", this ));
 
       // Non-compound services MAY NOT contain nested services
-//      if ( ! this.serviceBuilderContainer.isEmpty() )
+//      if ( ! this.serviceBuilderContainerHelper.isEmpty() )
 //        builderIssues.addIssue(new BuilderIssue(BuilderIssue.Severity.ERROR, "Non-compound services may not contian other services.", this ));
     }
 
@@ -338,7 +336,7 @@ class ServiceBuilderImpl implements ServiceBuilder
 
     return new ServiceImpl( this.name, this.description, this.type, baseUri, this.suffix,
         this.propertyBuilderContainer,
-        this.serviceBuilderContainer,
+        this.serviceBuilderContainerHelper,
 //        this.catalogWideServiceBuilderTracker,
         this.isRootServiceContainer, this.builderIssues );
   }

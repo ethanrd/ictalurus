@@ -61,7 +61,7 @@ class CatalogImpl implements Catalog
   private final DateType expires; // DateType instances are mutable
   private final DateType lastModified;
 
-  private final ServiceContainer serviceContainer;
+  private final ServiceContainerHelper serviceContainerHelper;
 //  private final CatalogWideServiceTracker catalogWideServiceTracker;
 //
 //  //private final DatasetNodeContainer datasetNodeContainer;
@@ -72,13 +72,13 @@ class CatalogImpl implements Catalog
 
 
   CatalogImpl( String name, String docBaseUri, String version, DateType expires, DateType lastModified,
-               PropertyBuilderContainer propertyBuilderContainer, ServiceBuilderContainer serviceBuilderContainer,
+               PropertyBuilderContainer propertyBuilderContainer, ServiceBuilderContainerHelper serviceBuilderContainerHelper,
 //               CatalogWideServiceBuilderTracker catalogWideServiceBuilderTracker,
                BuilderIssues builderIssues
   )
   {
-    if ( serviceBuilderContainer.isBuildable() != ThreddsBuilder.Buildable.YES )
-      throw new IllegalArgumentException( "Failed to build Catalog, ServiceBuilderContainer is not buildable.");
+    if ( serviceBuilderContainerHelper.isBuildable() != ThreddsBuilder.Buildable.YES )
+      throw new IllegalArgumentException( "Failed to build Catalog, ServiceBuilderContainerHelper is not buildable.");
 //    if ( catalogWideServiceBuilderTracker.isBuildable() != ThreddsBuilder.Buildable.YES)
 //      throw new IllegalArgumentException( "Failed to build Catalog, CatalogWideServiceBuilderTracker is not buildable.");
 //    if ( datasetNodeBuilderContainer.isBuildable() != ThreddsBuilder.Buildable.YES )
@@ -96,7 +96,7 @@ class CatalogImpl implements Catalog
     this.lastModified = lastModified;
 
     this.propertyBuilderContainer = propertyBuilderContainer;
-    this.serviceContainer = serviceBuilderContainer.build();
+    this.serviceContainerHelper = serviceBuilderContainerHelper.build();
 //    this.catalogWideServiceTracker = catalogWideServiceBuilderTracker.build();
 
     //this.datasetNodeContainer = datasetNodeBuilderContainer.build();
@@ -130,18 +130,18 @@ class CatalogImpl implements Catalog
 
   @Override
   public List<Service> getServices() {
-    return this.serviceContainer.getServices();
+    return this.serviceContainerHelper.getServices();
   }
 
 //  public Service getServiceByName( String name ) {
-//    return this.serviceContainer.getServiceByName( name );
+//    return this.serviceContainerHelper.getServiceByName( name );
 //  }
 
   @Override
   public Service findReferencableServiceByName( String name )
   {
 //    return this.catalogWideServiceTracker.getServiceByGloballyUniqueName( name );
-    return this.serviceContainer.findReferencableServiceByName( name );
+    return this.serviceContainerHelper.findReferencableServiceByName( name );
   }
 
   @Override

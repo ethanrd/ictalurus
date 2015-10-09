@@ -63,7 +63,7 @@ class CatalogImpl implements Catalog, CatalogBuilder
   private DateType expires;
   private DateType lastModified;
 
-  private final ServiceContainer serviceContainer;
+  private final ServiceContainerHelper serviceContainerHelper;
 //  private final GlobalServiceContainer globalServiceContainer;
 //
 //  private final DatasetNodeContainer datasetContainer;
@@ -88,7 +88,7 @@ class CatalogImpl implements Catalog, CatalogBuilder
     this.lastModified = lastModified != null ? lastModified : new DateType();
 
     this.propertyBuilderContainer = null;
-    this.serviceContainer = new ServiceContainer();
+    this.serviceContainerHelper = new ServiceContainerHelper();
 
     this.isBuildable = Buildable.DONT_KNOW;
   }
@@ -166,7 +166,7 @@ class CatalogImpl implements Catalog, CatalogBuilder
     if ( this.isBuilt )
       throw new IllegalStateException( "This CatalogBuilder has been built." );
 
-    return this.serviceContainer.addService( name, type, baseUri );
+    return this.serviceContainerHelper.addService( name, type, baseUri );
   }
 
   @Override
@@ -177,7 +177,7 @@ class CatalogImpl implements Catalog, CatalogBuilder
     if ( serviceBuilder == null )
       return false;
 
-    if ( this.serviceContainer.removeService( (ServiceImpl) serviceBuilder ) ) {
+    if ( this.serviceContainerHelper.removeService( (ServiceImpl) serviceBuilder ) ) {
       this.isBuildable = Buildable.DONT_KNOW;
       return true;
     }
@@ -189,7 +189,7 @@ class CatalogImpl implements Catalog, CatalogBuilder
   {
     if ( this.isBuilt )
       throw new IllegalStateException( "This CatalogBuilder has been built." );
-    return Collections.unmodifiableList( new ArrayList<ServiceBuilder>( this.serviceContainer.getServiceImpls() ) );
+    return Collections.unmodifiableList( new ArrayList<ServiceBuilder>( this.serviceContainerHelper.getServiceImpls() ) );
   }
 
   @Override
@@ -197,14 +197,14 @@ class CatalogImpl implements Catalog, CatalogBuilder
   {
     if ( !isBuilt )
       throw new IllegalStateException( "This Catalog has escaped its CatalogBuilder without build() being called." );
-    return Collections.unmodifiableList( new ArrayList<Service>( this.serviceContainer.getServiceImpls() ) );
+    return Collections.unmodifiableList( new ArrayList<Service>( this.serviceContainerHelper.getServiceImpls() ) );
   }
 
 //  public Service getServiceByName( String name )
 //  {
 //    if ( !isBuilt )
 //      throw new IllegalStateException( "This Catalog has escaped its CatalogBuilder without being build()-ed." );
-//    return this.serviceContainer.getServiceByName( name );
+//    return this.serviceContainerHelper.getServiceByName( name );
 //  }
 
   @Override
@@ -213,7 +213,7 @@ class CatalogImpl implements Catalog, CatalogBuilder
     if ( !isBuilt )
       throw new IllegalStateException( "This Catalog has escaped its CatalogBuilder without being build()-ed." );
 //    return this.globalServiceContainer.getServiceByGloballyUniqueName( name );
-    return this.serviceContainer.findReferencableServiceImplByName( name );
+    return this.serviceContainerHelper.findReferencableServiceImplByName( name );
   }
 
   @Override
@@ -222,7 +222,7 @@ class CatalogImpl implements Catalog, CatalogBuilder
     if ( isBuilt )
       throw new IllegalStateException( "This CatalogBuilder has been built." );
 //    return this.globalServiceContainer.getServiceByGloballyUniqueName( name );
-    return this.serviceContainer.findReferencableServiceImplByName( name );
+    return this.serviceContainerHelper.findReferencableServiceImplByName( name );
   }
 
   @Override
@@ -370,7 +370,7 @@ class CatalogImpl implements Catalog, CatalogBuilder
 
     // Check subordinates.
 //    builderIssues.addAllIssues( this.globalServiceContainer.checkForIssues());
-    builderIssues.addAllIssues( this.serviceContainer.checkForIssues());
+    builderIssues.addAllIssues( this.serviceContainerHelper.checkForIssues());
 //    builderIssues.addAllIssues( this.datasetContainer.checkForIssues());
     if ( this.propertyBuilderContainer != null )
       builderIssues.addAllIssues( this.propertyBuilderContainer.checkForIssues());
@@ -398,7 +398,7 @@ class CatalogImpl implements Catalog, CatalogBuilder
     }
     this.docBaseUri = tmpUri;
 
-    this.serviceContainer.build();
+    this.serviceContainerHelper.build();
 //    this.datasetContainer.build();
 
     this.threddsCatalogIssueContainer = new ThreddsCatalogIssuesImpl( builderIssues);

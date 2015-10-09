@@ -62,7 +62,7 @@ final class ServiceImpl implements Service
 
   private final PropertyBuilderContainer propertyBuilderContainer;
 
-  private final ServiceContainer serviceContainer;
+  private final ServiceContainerHelper serviceContainerHelper;
 
 //  private final CatalogWideServiceTracker catalogWideServiceTracker;
 //  private final boolean isRootContainer;
@@ -77,14 +77,14 @@ final class ServiceImpl implements Service
    * @param baseUriAsString
    * @param suffix
    * @param propertyBuilderContainer
-//   * @param serviceBuilderContainer
+//   * @param serviceBuilderContainerHelper
 //   * @param catalogWideServiceBuilderTracker
    * @param isRootContainer
    * @param builderIssues
    */
   ServiceImpl( String name, String description, ServiceType type, String baseUriAsString, String suffix,
                PropertyBuilderContainer propertyBuilderContainer,
-               ServiceBuilderContainer serviceBuilderContainer,
+               ServiceBuilderContainerHelper serviceBuilderContainerHelper,
 //               CatalogWideServiceBuilderTracker catalogWideServiceBuilderTracker,
                boolean isRootContainer,
                BuilderIssues builderIssues ) {
@@ -94,8 +94,8 @@ final class ServiceImpl implements Service
       throw new IllegalArgumentException( "Service type must not be null.");
     if ( propertyBuilderContainer != null && propertyBuilderContainer.isBuildable() != ThreddsBuilder.Buildable.YES )
       throw new IllegalArgumentException( "ServiceBuilder can't be built when PropertyBuilderContainer is not buildable.");
-    if ( serviceBuilderContainer.isBuildable() != ThreddsBuilder.Buildable.YES )
-      throw new IllegalArgumentException( "ServiceBuilder can't be built when ServiceBuilderContainer is not buildable.");
+    if ( serviceBuilderContainerHelper.isBuildable() != ThreddsBuilder.Buildable.YES )
+      throw new IllegalArgumentException( "ServiceBuilder can't be built when ServiceBuilderContainerHelper is not buildable.");
 //    if ( catalogWideServiceBuilderTracker.isBuildable() != ThreddsBuilder.Buildable.YES)
 //      throw new IllegalArgumentException( "ServiceBuilder can't be built when CatalogWideServiceBuilderTracker is not buildable.");
 
@@ -109,7 +109,7 @@ final class ServiceImpl implements Service
     }
     this.suffix = suffix == null ? "" : suffix;
     this.propertyBuilderContainer = propertyBuilderContainer;
-    this.serviceContainer = serviceBuilderContainer != null ? serviceBuilderContainer.build() : null;
+    this.serviceContainerHelper = serviceBuilderContainerHelper != null ? serviceBuilderContainerHelper.build() : null;
 //    this.isRootContainer = isRootContainer;
 //    if ( this.isRootContainer )
 //      this.catalogWideServiceTracker = catalogWideServiceBuilderTracker.build();
@@ -167,11 +167,11 @@ final class ServiceImpl implements Service
   }
 
   public List<Service> getServices() {
-    return this.serviceContainer.getServices();
+    return this.serviceContainerHelper.getServices();
   }
 
 //  public Service getService(String name) {
-//    return this.serviceContainer.getServiceByName( name );
+//    return this.serviceContainerHelper.getServiceByName( name );
 //  }
 
   public Service findReferencableServiceByName( String name ) {

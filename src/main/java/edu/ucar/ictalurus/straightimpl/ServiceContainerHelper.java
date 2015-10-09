@@ -43,16 +43,16 @@ import java.util.*;
  *
  * @author edavis
  */
-public class ServiceContainer
+public class ServiceContainerHelper
 {
   private final List<Service> services;
   //private final CatalogWideServiceTracker catalogWideServiceTracker;
 
-//  ServiceContainer( List<ServiceBuilder> serviceBuilderList ) {
+//  ServiceContainerHelper( List<ServiceBuilder> serviceBuilderList ) {
 //    this(serviceBuilderList, new CatalogWideServiceTracker());
 //  }
 
-  ServiceContainer( List<ServiceBuilder> serviceBuilderList)//, CatalogWideServiceBuilderTracker cwsbt)
+  ServiceContainerHelper( List<ServiceBuilder> serviceBuilderList )//, CatalogWideServiceBuilderTracker cwsbt)
   {
     if ( serviceBuilderList == null || serviceBuilderList.isEmpty() ) {
       this.services = null;
@@ -63,7 +63,7 @@ public class ServiceContainer
       Map<String,Service> referencableServicesMap = new HashMap<String, Service>();
       for ( ServiceBuilder curServiceBuilder : serviceBuilderList) {
         if ( curServiceBuilder.isBuildable() != ThreddsBuilder.Buildable.YES ) {
-          throw new IllegalArgumentException( "Can't construct ServiceContainer with ServiceBuilders [" + curServiceBuilder.getName() + "] that are not buildable.");
+          throw new IllegalArgumentException( "Can't construct ServiceContainerHelper with ServiceBuilders [" + curServiceBuilder.getName() + "] that are not buildable.");
         }
         tmpServiceList.add( curServiceBuilder.build());
       }
@@ -71,7 +71,7 @@ public class ServiceContainer
     }
   }
 
-//  ServiceContainer( List<ServiceBuilder> serviceBuilderList, CatalogWideServiceBuilderTracker cwsbt,
+//  ServiceContainerHelper( List<ServiceBuilder> serviceBuilderList, CatalogWideServiceBuilderTracker cwsbt,
 //                    CatalogWideServiceTracker catalogWideServiceTracker ) {
 //
 //  }

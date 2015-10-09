@@ -61,7 +61,7 @@ class CatalogBuilderImpl implements CatalogBuilder
   private DateType expires;
   private DateType lastModified;
 
-  private ServiceBuilderContainer serviceBuilderContainer;
+  private ServiceBuilderContainerHelper serviceBuilderContainerHelper;
 //  private CatalogWideServiceBuilderTracker catalogWideServiceBuilderTracker;
 //
 //  private DatasetNodeContainer datasetContainer;
@@ -79,7 +79,7 @@ class CatalogBuilderImpl implements CatalogBuilder
     this.lastModified = lastModified != null ? lastModified : new DateType();
 
 //    this.catalogWideServiceBuilderTracker = new CatalogWideServiceBuilderTracker();
-    this.serviceBuilderContainer = new ServiceBuilderContainer(); // catalogWideServiceBuilderTracker);
+    this.serviceBuilderContainerHelper = new ServiceBuilderContainerHelper( this); // catalogWideServiceBuilderTracker);
 
 //    //this.datasetContainer = new DatasetNodeContainer( null );
     this.propertyBuilderContainer = null;
@@ -137,11 +137,11 @@ class CatalogBuilderImpl implements CatalogBuilder
   }
 
   public ServiceBuilder addService( String name, ServiceType type, String baseUri ) {
-    if ( this.serviceBuilderContainer == null )
-      this.serviceBuilderContainer = new ServiceBuilderContainer();
+//    if ( this.serviceBuilderContainerHelper == null )
+//      this.serviceBuilderContainerHelper = new ServiceBuilderContainerHelper();
     this.isBuildable = Buildable.DONT_KNOW;
-    ServiceBuilderImpl serviceBuilder = new ServiceBuilderImpl( name, type, baseUri );
-    this.serviceBuilderContainer.addService( serviceBuilder );
+    ServiceBuilderImpl serviceBuilder = new ServiceBuilderImpl( name, type, baseUri, this );
+    this.serviceBuilderContainerHelper.addService( serviceBuilder );
     return serviceBuilder;
   }
 
@@ -149,7 +149,7 @@ class CatalogBuilderImpl implements CatalogBuilder
     if ( serviceBuilder == null )
       return false;
 
-    if ( this.serviceBuilderContainer.removeService( serviceBuilder ) ) {
+    if ( this.serviceBuilderContainerHelper.removeService( serviceBuilder ) ) {
       this.isBuildable = Buildable.DONT_KNOW;
       return true;
     }
@@ -157,12 +157,12 @@ class CatalogBuilderImpl implements CatalogBuilder
   }
 
   public List<ServiceBuilder> getServiceBuilders() {
-    return this.serviceBuilderContainer.getServices();
+    return this.serviceBuilderContainerHelper.getServices();
   }
 
   @Override
   public ServiceBuilder findReferencableServiceBuilderByName( String name ) {
-    return this.serviceBuilderContainer.findReferencableServiceBuilderByName( name );
+    return this.serviceBuilderContainerHelper.findReferencableServiceBuilderByName( name );
   }
 
   public void addProperty( String name, String value ) {
@@ -273,7 +273,7 @@ class CatalogBuilderImpl implements CatalogBuilder
       builderIssues.addIssue( new BuilderIssue( BuilderIssue.Severity.WARNING, String.format( "The document base URI [%s} is not absolute.", this.docBaseUri), this));
 
     // Check subordinates.
-    builderIssues.addAllIssues( this.serviceBuilderContainer.checkForIssues());
+    builderIssues.addAllIssues( this.serviceBuilderContainerHelper.checkForIssues());
     if ( this.propertyBuilderContainer != null )
       builderIssues.addAllIssues( this.propertyBuilderContainer.checkForIssues() );
 //    builderIssues.addAllIssues( this.catalogWideServiceBuilderTracker.checkForIssues());
@@ -293,7 +293,7 @@ class CatalogBuilderImpl implements CatalogBuilder
 
     return new CatalogImpl( this.name, this.docBaseUri, this.version,
         this.expires, this.lastModified,
-        this.propertyBuilderContainer, this.serviceBuilderContainer,
+        this.propertyBuilderContainer, this.serviceBuilderContainerHelper,
 //        this.catalogWideServiceBuilderTracker,
         this.builderIssues );
   }

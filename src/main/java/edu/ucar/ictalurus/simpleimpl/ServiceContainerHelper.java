@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author edavis
  */
-public class ServiceContainer
+public class ServiceContainerHelper
 {
   private List<ServiceImpl> services;
 
@@ -23,7 +23,7 @@ public class ServiceContainer
 
   private boolean isBuilt;
 
-  ServiceContainer() // GlobalServiceContainer globalServiceContainer )
+  ServiceContainerHelper() // GlobalServiceContainer globalServiceContainer )
   {
 //    if ( globalServiceContainer == null )
 //      throw new IllegalArgumentException( "" );
@@ -59,12 +59,12 @@ public class ServiceContainer
    * @param baseUri the base URI of the ServiceImpl.
    * @return the ServiceImpl that was created and added to this container.
    * @throws IllegalArgumentException if name, type, or baseUri are null.
-   * @throws IllegalStateException if build() has been called on this ServiceContainer.
+   * @throws IllegalStateException if build() has been called on this ServiceContainerHelper.
    */
   ServiceImpl addService( String name, ServiceType type, String baseUri )
   {
     if ( this.isBuilt )
-      throw new IllegalStateException( "This ServiceContainer has been built.");
+      throw new IllegalStateException( "This ServiceContainerHelper has been built.");
 
     if ( this.services == null )
       this.services = new ArrayList<ServiceImpl>();
@@ -84,12 +84,12 @@ public class ServiceContainer
    *
    * @param service the Service to remove.
    * @return true if the Service was present and has been removed, otherwise false.
-   * @throws IllegalStateException if build() has been called on this ServiceContainer.
+   * @throws IllegalStateException if build() has been called on this ServiceContainerHelper.
    */
   boolean removeService( ServiceImpl service )
   {
     if ( this.isBuilt )
-      throw new IllegalStateException( "This ServiceContainer has been built." );
+      throw new IllegalStateException( "This ServiceContainerHelper has been built." );
 
     if ( service == null )
       return false;
@@ -187,9 +187,9 @@ public class ServiceContainer
   }
 
   /**
-   * Gather any issues with the current state of this ServiceContainer.
+   * Gather any issues with the current state of this ServiceContainerHelper.
    *
-   * @return any BuilderIssues with the current state of this ServiceContainer.
+   * @return any BuilderIssues with the current state of this ServiceContainerHelper.
    */
   BuilderIssues checkForIssues()
   {

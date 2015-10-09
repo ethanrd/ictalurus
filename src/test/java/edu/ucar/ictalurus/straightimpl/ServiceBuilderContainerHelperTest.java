@@ -22,10 +22,10 @@ import static org.junit.Assert.assertEquals;
  * @author edavis
  */
 @RunWith(Parameterized.class)
-public class ServiceBuilderContainerTest {
+public class ServiceBuilderContainerHelperTest {
     private ThreddsBuilderFactory threddsBuilderFactory;
 
-    public ServiceBuilderContainerTest( ThreddsBuilderFactory threddsBuilderFactory ) {
+    public ServiceBuilderContainerHelperTest( ThreddsBuilderFactory threddsBuilderFactory ) {
       this.threddsBuilderFactory = threddsBuilderFactory;
     }
 
@@ -36,7 +36,7 @@ public class ServiceBuilderContainerTest {
 
   @Test
   public void checkNewEmptyContainer() {
-    ServiceBuilderContainer sbc = new ServiceBuilderContainer();
+    ServiceBuilderContainerHelper sbc = new ServiceBuilderContainerHelper();
     assertNotNull( sbc );
     assertTrue( sbc.isEmpty());
     assertEquals( 0, sbc.size() );
@@ -51,7 +51,7 @@ public class ServiceBuilderContainerTest {
 
   @Test
   public void checkNewContainer() {
-    ServiceBuilderContainer sbc = new ServiceBuilderContainer();
+    ServiceBuilderContainerHelper sbc = new ServiceBuilderContainerHelper();
     sbc.addService( this.threddsBuilderFactory.newServiceBuilder( "odap", ServiceType.OPENDAP, "/thredds/dodsC/" ));
     sbc.addService( this.threddsBuilderFactory.newServiceBuilder( "wcs", ServiceType.WCS, "/thredds/wcs/" ));
     sbc.addService( this.threddsBuilderFactory.newServiceBuilder( "wms", ServiceType.WMS, "/thredds/wms/" ));
