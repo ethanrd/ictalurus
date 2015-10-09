@@ -30,36 +30,75 @@
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION
  * WITH THE ACCESS, USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-package edu.ucar.ictalurus.builder;
+package edu.ucar.ictalurus;
 
-import ucar.nc2.units.DateType;
-import edu.ucar.ictalurus.Catalog;
-import edu.ucar.ictalurus.Service;
-import edu.ucar.ictalurus.ServiceType;
+import java.net.URI;
+import java.util.List;
 
 /**
- * _more_
+ * Represents a data access service and allows basic data access information
+ * to be factored out of dataset Access objects.
  *
  * @author edavis
  * @since 4.0
  */
-public interface ThreddsBuilderFactory
+public interface Service extends ThreddsCatalogNode
 {
-  public CatalogBuilder newCatalogBuilder( String name, String docBaseUri, String version, DateType expires, DateType lastModified );
-  public CatalogBuilder newCatalogBuilder( Catalog catalog );
+  /**
+   * Returns the name of this Service, may not be null.
+   *
+   * @return the name of this Service, never null.
+   */
+  public String getName();
 
-  public ServiceBuilder newServiceBuilder( String name, ServiceType type, String baseUri );
-  public ServiceBuilder newServiceBuilder( Service service );
+  /**
+   * Returns a human-readable description of this Service.
+   *
+   * @return a human-readable description of this service.
+   */
+  public String getDescription();
 
-//  public AccessBuilder newAccessBuilder( String serviceBuilderName, String urlPath );
+  /**
+   * Return the ServiceType for this Service, may not be null.
+   *
+   * @return the ServiceType for this Service, never null.
+   */
+  public ServiceType getType();
 
-//  public DatasetBuilder newDatasetBuilder( String name );
-//  public DatasetBuilder newDatasetBuilder( Dataset dataset );
-//
-//  public CatalogRefBuilder newCatalogRefBuilder( String name, String reference );
-//  public CatalogRefBuilder newCatalogRefBuilder( CatalogRef catRef);
+  /**
+   * Return the base URI for this Service, may not be null.
+   *
+   * @return the base URI for this Service, never null.
+   */
+  public URI getBaseUri();
 
-//  public MetadataBuilder newMetadataBuilder();
+  /**
+   * Return the suffix for this Service. The suffix will not be null
+   * but may be an empty string.
+   *
+   * @return the suffix for this Service.
+   */
+  public String getSuffix();
 
-//  public ThreddsMetadataBuilder newThreddsMetadataBuilder();
+  /**
+   * Return the List of Property objects associated with this Service.
+   *
+   * @return the List of Property objects associated with this Service, may be an empty list but not null.
+   */
+  public List<Property> getProperties();
+  public List<String> getPropertyNames();
+
+  public Property getProperty( String name );
+  public List<Property> getProperties( String name );
+
+  /**
+   * Return the List of Service Objects nested in this service. Nested
+   * services are only allowed when this service has a "Compound" ServiceType.
+   *
+   * @return the List of Service Objects nested in this service, may be an empty list but not null.
+   */
+  public List<Service> getServices();
+
+  public Service getService( String name );
+  public Service findReferencableServiceByName( String name );
 }

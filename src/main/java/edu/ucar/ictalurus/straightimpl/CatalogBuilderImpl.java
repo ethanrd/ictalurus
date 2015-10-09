@@ -35,13 +35,16 @@ package edu.ucar.ictalurus.straightimpl;
 import ucar.nc2.units.DateType;
 import edu.ucar.ictalurus.Catalog;
 import edu.ucar.ictalurus.Property;
+import edu.ucar.ictalurus.ServiceType;
 import edu.ucar.ictalurus.builder.BuilderIssue;
 import edu.ucar.ictalurus.builder.BuilderIssues;
 import edu.ucar.ictalurus.builder.CatalogBuilder;
+import edu.ucar.ictalurus.builder.ServiceBuilder;
 import edu.ucar.ictalurus.util.PropertyBuilderContainer;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -58,7 +61,7 @@ class CatalogBuilderImpl implements CatalogBuilder
   private DateType expires;
   private DateType lastModified;
 
-//  private ServiceBuilderContainer serviceBuilderContainer;
+  private ServiceBuilderContainer serviceBuilderContainer;
 //  private CatalogWideServiceBuilderTracker catalogWideServiceBuilderTracker;
 //
 //  private DatasetNodeContainer datasetContainer;
@@ -79,8 +82,7 @@ class CatalogBuilderImpl implements CatalogBuilder
 //    this.serviceBuilderContainer = new ServiceBuilderContainer( catalogWideServiceBuilderTracker);
 //
 //    //this.datasetContainer = new DatasetNodeContainer( null );
-    this.propertyBuilderContainer = new PropertyBuilderContainer();
-    this.propertyBuilderContainer.setContainingBuilder( this );
+    this.propertyBuilderContainer = null;
     this.isBuildable = Buildable.DONT_KNOW;
   }
 
@@ -134,56 +136,70 @@ class CatalogBuilderImpl implements CatalogBuilder
     return this.lastModified;
   }
 
-//  public ServiceBuilder addService( String name, ServiceType type, String baseUri ) {
-//    this.isBuildable = Buildable.DONT_KNOW;
-//    return this.serviceBuilderContainer.addService( name, type, baseUri );
-//  }
-//
-//  public boolean removeService( ServiceBuilder serviceBuilder ) {
-//    if ( serviceBuilder == null )
-//      return false;
-//
-//    this.isBuildable = Buildable.DONT_KNOW;
-//    return this.serviceBuilderContainer.removeService( serviceBuilder );
-//  }
-//
-//  public List<ServiceBuilder> getServiceBuilders()
-//  {
-//    return this.serviceBuilderContainer.getServiceBuilders();
-//  }
-//
-//  public ServiceBuilder getServiceBuilderByName( String name )
-//  {
-//    return this.serviceBuilderContainer.getServiceBuilderByName( name );
-//  }
-//
-//  public ServiceBuilder findServiceBuilderByNameGlobally( String name ) {
-//    return this.catalogWideServiceBuilderTracker.getReferenceableService(name);
-//  }
+  public ServiceBuilder addService( String name, ServiceType type, String baseUri ) {
+    if ( this.serviceBuilderContainer == null )
+      this.serviceBuilderContainer = new ServiceBuilderContainer();
+    this.isBuildable = Buildable.DONT_KNOW;
+    ServiceBuilderImpl serviceBuilder = new ServiceBuilderImpl( name, type, baseUri );
+    this.serviceBuilderContainer.addService( serviceBuilder );
+    return serviceBuilder;
+  }
+
+  public boolean removeService( ServiceBuilder serviceBuilder ) {
+    if ( serviceBuilder == null )
+      return false;
+
+    this.isBuildable = Buildable.DONT_KNOW;
+    return this.serviceBuilderContainer.removeService( serviceBuilder );
+  }
+
+  public List<ServiceBuilder> getServiceBuilders() {
+    return this.serviceBuilderContainer.getServices();
+  }
+
+  @Override
+  public ServiceBuilder findReferencableServiceBuilderByName( String name ) {
+    return this.serviceBuilderContainer.findReferencableServiceBuilderByName( name );
+  }
 
   public void addProperty( String name, String value ) {
     this.isBuildable = Buildable.DONT_KNOW;
+    if ( this.propertyBuilderContainer == null ) {
+      this.propertyBuilderContainer = new PropertyBuilderContainer();
+      this.propertyBuilderContainer.setContainingBuilder( this );
+
+    }
     this.propertyBuilderContainer.addProperty(name, value);
   }
 
   public boolean removeProperty( Property name ) {
     this.isBuildable = Buildable.DONT_KNOW;
+    if ( this.propertyBuilderContainer == null )
+      return false;
     return this.propertyBuilderContainer.removeProperty( name );
   }
 
   public List<Property> getProperties() {
+    if ( this.propertyBuilderContainer == null )
+      return Collections.emptyList();
     return this.propertyBuilderContainer.getProperties();
   }
 
   public List<String> getPropertyNames() {
+    if ( this.propertyBuilderContainer == null )
+      return Collections.emptyList();
     return this.propertyBuilderContainer.getPropertyNames();
   }
 
   public Property getProperty( String name ) {
-    return this.propertyBuilderContainer.getProperty(name);
+    if ( this.propertyBuilderContainer == null )
+      return null;
+    return this.propertyBuilderContainer.getProperty( name );
   }
 
   public List<Property> getProperties( String name ) {
+    if ( this.propertyBuilderContainer == null )
+      return Collections.emptyList();
     return this.propertyBuilderContainer.getProperties( name );
   }
 
@@ -254,8 +270,9 @@ class CatalogBuilderImpl implements CatalogBuilder
       builderIssues.addIssue( new BuilderIssue( BuilderIssue.Severity.WARNING, String.format( "The document base URI [%s} is not absolute.", this.docBaseUri), this));
 
     // Check subordinates.
-//    builderIssues.addAllIssues( this.serviceBuilderContainer.checkForIssues());
-    builderIssues.addAllIssues( this.propertyBuilderContainer.checkForIssues());
+    builderIssues.addAllIssues( this.serviceBuilderContainer.checkForIssues());
+    if ( this.propertyBuilderContainer != null )
+      builderIssues.addAllIssues( this.propertyBuilderContainer.checkForIssues() );
 //    builderIssues.addAllIssues( this.catalogWideServiceBuilderTracker.checkForIssues());
 
     if ( builderIssues.isValid())
@@ -273,7 +290,7 @@ class CatalogBuilderImpl implements CatalogBuilder
 
     return new CatalogImpl( this.name, this.docBaseUri, this.version,
         this.expires, this.lastModified,
-        this.propertyBuilderContainer, // this.serviceBuilderContainer,
+        this.propertyBuilderContainer, this.serviceBuilderContainer,
 //        this.catalogWideServiceBuilderTracker,
         this.builderIssues );
   }

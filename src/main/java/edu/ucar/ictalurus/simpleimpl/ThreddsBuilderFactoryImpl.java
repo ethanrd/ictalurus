@@ -34,7 +34,10 @@ package edu.ucar.ictalurus.simpleimpl;
 
 import ucar.nc2.units.DateType;
 import edu.ucar.ictalurus.Catalog;
+import edu.ucar.ictalurus.Service;
+import edu.ucar.ictalurus.ServiceType;
 import edu.ucar.ictalurus.builder.CatalogBuilder;
+import edu.ucar.ictalurus.builder.ServiceBuilder;
 import edu.ucar.ictalurus.builder.ThreddsBuilderFactory;
 
 /**
@@ -65,18 +68,18 @@ public class ThreddsBuilderFactoryImpl implements ThreddsBuilderFactory
 //    throw new IllegalArgumentException( "Given catalog not correct implementation for this ThreddsBuilderFactory.");
   }
 
+  public ServiceBuilder newServiceBuilder( String name, ServiceType type, String baseUriAsString ) {
+    return new ServiceImpl( name, type, baseUriAsString );
+  }
+
+  public ServiceBuilder newServiceBuilder( Service service ) {
+    // ToDo
+    throw new UnsupportedOperationException( "Not yet implemented." );
+  }
+
 //  @Override
 //  public AccessBuilder newAccessBuilder( String serviceBuilderName, String urlPath ) {
 //    return new AccessBuilderImpl( serviceBuilderName, urlPath );
-//  }
-//
-//  public ServiceBuilder newServiceBuilder( String name, ServiceType type, String baseUriAsString ) {
-//    return new ServiceBuilderImpl( name, type, baseUriAsString );
-//  }
-//
-//  public ServiceBuilder newServiceBuilder( Service service ) {
-//    // ToDo
-//    throw new UnsupportedOperationException( "Not yet implemented." );
 //  }
 
 //  public DatasetBuilder newDatasetBuilder( String name ) {

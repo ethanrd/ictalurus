@@ -32,9 +32,9 @@
  */
 package edu.ucar.ictalurus.straightimpl;
 
-import ucar.nc2.units.DateType;
-import edu.ucar.ictalurus.Catalog;
+import edu.ucar.ictalurus.ServiceType;
 import edu.ucar.ictalurus.Property;
+import edu.ucar.ictalurus.Service;
 import edu.ucar.ictalurus.ThreddsCatalogIssueContainer;
 import edu.ucar.ictalurus.builder.BuilderIssues;
 import edu.ucar.ictalurus.builder.ThreddsBuilder;
@@ -52,86 +52,125 @@ import java.util.List;
  * @author edavis
  * @since 4.0
  */
-class CatalogImpl implements Catalog
+final class ServiceImpl implements Service
 {
   private final String name;
-  private final URI docBaseUri;
-  private final String version;
-  private final DateType expires; // DateType instances are mutable
-  private final DateType lastModified;
-
-  private final ServiceContainer serviceContainer;
-//  private final CatalogWideServiceTracker catalogWideServiceTracker;
-//
-//  //private final DatasetNodeContainer datasetNodeContainer;
+  private final String description;
+  private final ServiceType type;
+  private final URI baseUri;
+  private final String suffix;
 
   private final PropertyBuilderContainer propertyBuilderContainer;
 
+//  private final ServiceContainer serviceContainer;
+//
+//  private final CatalogWideServiceTracker catalogWideServiceTracker;
+  private final boolean isRootContainer;
+
   private final ThreddsCatalogIssueContainer threddsCatalogIssueContainer;
 
-
-  CatalogImpl( String name, String docBaseUri, String version, DateType expires, DateType lastModified,
-               PropertyBuilderContainer propertyBuilderContainer, ServiceBuilderContainer serviceBuilderContainer,
+  /**
+   * @throws IllegalArgumentException
+   * @param name
+   * @param description
+   * @param type
+   * @param baseUriAsString
+   * @param suffix
+   * @param propertyBuilderContainer
+//   * @param serviceBuilderContainer
+//   * @param catalogWideServiceBuilderTracker
+   * @param isRootContainer
+   * @param builderIssues
+   */
+  ServiceImpl( String name, String description, ServiceType type, String baseUriAsString, String suffix,
+               PropertyBuilderContainer propertyBuilderContainer,
+//               ServiceBuilderContainer serviceBuilderContainer,
 //               CatalogWideServiceBuilderTracker catalogWideServiceBuilderTracker,
-               BuilderIssues builderIssues
-  )
-  {
-    if ( serviceBuilderContainer.isBuildable() != ThreddsBuilder.Buildable.YES )
-      throw new IllegalArgumentException( "Failed to build Catalog, ServiceBuilderContainer is not buildable.");
+               boolean isRootContainer,
+               BuilderIssues builderIssues ) {
+    if ( name == null || name.isEmpty() )
+      throw new IllegalArgumentException( "Name must not be null or empty.");
+    if ( type == null )
+      throw new IllegalArgumentException( "Service type must not be null.");
+    if ( propertyBuilderContainer.isBuildable() != ThreddsBuilder.Buildable.YES )
+      throw new IllegalArgumentException( "ServiceBuilder can't be built when PropertyBuilderContainer is not buildable.");
+//    if ( serviceBuilderContainer.isBuildable() != ThreddsBuilder.Buildable.YES )
+//      throw new IllegalArgumentException( "ServiceBuilder can't be built when ServiceBuilderContainer is not buildable.");
 //    if ( catalogWideServiceBuilderTracker.isBuildable() != ThreddsBuilder.Buildable.YES)
-//      throw new IllegalArgumentException( "Failed to build Catalog, CatalogWideServiceBuilderTracker is not buildable.");
-//    if ( datasetNodeBuilderContainer.isBuildable() != ThreddsBuilder.Buildable.YES )
-//      throw new IllegalArgumentException( "Failed to build Catalog, DatasetNodeBuilderContainer is not buildable.");
+//      throw new IllegalArgumentException( "ServiceBuilder can't be built when CatalogWideServiceBuilderTracker is not buildable.");
 
-
-    this.name = name == null ? "" : name;
+    this.name = name;
+    this.description = description == null ? "" : description;
+    this.type = type;
     try {
-      this.docBaseUri = new URI( docBaseUri == null ? "" : docBaseUri);
+      this.baseUri = new URI( baseUriAsString == null ? "" : baseUriAsString );
     } catch (URISyntaxException e) {
-      throw new IllegalArgumentException( String.format( "Failed to build Catalog, document base URI [%s] must be valid URI.", docBaseUri));
+      throw new IllegalArgumentException( "ServiceBuilder can't be built when baseUri not a valid URI.");
     }
-    this.version = version == null ? "" : version;
-    this.expires = expires;
-    this.lastModified = lastModified;
-
+    this.suffix = suffix == null ? "" : suffix;
     this.propertyBuilderContainer = propertyBuilderContainer;
-    this.serviceContainer = serviceBuilderContainer.build();
-//    this.catalogWideServiceTracker = catalogWideServiceBuilderTracker.build();
-
-    //this.datasetNodeContainer = datasetNodeBuilderContainer.build();
-
+//    this.serviceContainer = serviceBuilderContainer.build();
+    this.isRootContainer = isRootContainer;
+//    if ( this.isRootContainer )
+//      this.catalogWideServiceTracker = catalogWideServiceBuilderTracker.build();
+//    else
+//      this.catalogWideServiceTracker = null;
     this.threddsCatalogIssueContainer = new ThreddsCatalogIssuesImpl( builderIssues);
   }
-
-//  DatasetNodeContainer getDatasetNodeContainer() {
-//    return this.datasetNodeContainer;
-//  }
 
   public String getName() {
     return this.name;
   }
 
-  public URI getDocBaseUri() {
-    return this.docBaseUri;
+  public String getDescription() {
+    return this.description;
   }
 
-  public String getVersion() {
-    return this.version;
+  public ServiceType getType() {
+    return this.type;
   }
 
-  public DateType getExpires() {
-    return this.expires;
+  public URI getBaseUri() {
+    return this.baseUri;
   }
 
-  public DateType getLastModified() {
-    return this.lastModified;
+  public String getSuffix() {
+    return this.suffix;
+  }
+
+  public List<Property> getProperties() {
+    if ( this.propertyBuilderContainer == null )   {
+      return Collections.emptyList();
+    }
+    return this.propertyBuilderContainer.getProperties();
+  }
+
+  public List<String> getPropertyNames() {
+    if ( this.propertyBuilderContainer == null )   {
+      return Collections.emptyList();
+    }
+    return this.propertyBuilderContainer.getPropertyNames();
+  }
+
+  public Property getProperty(String name) {
+    if ( this.propertyBuilderContainer == null )   {
+      return null;
+    }
+    return this.propertyBuilderContainer.getProperty( name );
+  }
+
+  public List<Property> getProperties( String name ) {
+    if ( this.propertyBuilderContainer == null )   {
+      return Collections.emptyList();
+    }
+    return this.propertyBuilderContainer.getProperties( name );
   }
 
 //  public List<Service> getServices() {
 //    return this.serviceContainer.getServices();
 //  }
 //
-//  public Service getServiceByName( String name ) {
+//  public Service getService(String name) {
 //    return this.serviceContainer.getServiceByName( name );
 //  }
 //
@@ -139,45 +178,6 @@ class CatalogImpl implements Catalog
 //    return this.catalogWideServiceTracker.getServiceByGloballyUniqueName( name );
 //  }
 
-  @Override
-  public List<Property> getProperties() {
-    if ( this.propertyBuilderContainer == null )
-      return Collections.emptyList();
-    return this.propertyBuilderContainer.getProperties();
-  }
-
-  @Override
-  public List<String> getPropertyNames() {
-    if ( this.propertyBuilderContainer == null )
-      return Collections.emptyList();
-    return this.propertyBuilderContainer.getPropertyNames();
-  }
-
-  @Override
-  public List<Property> getProperties( String name ) {
-    if ( this.propertyBuilderContainer == null )
-      return Collections.emptyList();
-    return this.propertyBuilderContainer.getProperties( name );
-  }
-
-  @Override
-  public Property getProperty( String name ) {
-    if ( this.propertyBuilderContainer == null )
-      return null;
-    return this.propertyBuilderContainer.getProperty( name );
-  }
-
-//  public List<DatasetNode> getDatasets() {
-//    return null; //this.datasetNodeContainer.getDatasets();
-//  }
-//
-//  public DatasetNode getDatasetById( String id ) {
-//    return null; //this.datasetNodeContainer.getDatasetById( id );
-//  }
-//
-//  public DatasetNode findDatasetByIdGlobally( String id ) {
-//    return null; //this.datasetNodeContainer.getDatasetNodeByGloballyUniqueId( id );
-//  }
 
   @Override
   public ThreddsCatalogIssueContainer getCatalogIssues() {

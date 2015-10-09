@@ -87,7 +87,7 @@ public class CatalogTestUtils {
 //    ServiceBuilder serviceBldr = serviceBldrs.get( 0 );
 //    assertEquals( serviceBldr.getName(), "odap" );
 //    assertEquals( serviceBldr.getType(), ServiceType.OPENDAP );
-//    assertEquals( serviceBldr.getBaseUri().toString(), "/thredds/dodsC/" );
+//    assertEquals( serviceBldr.getBaseUriAsString(), "/thredds/dodsC/" );
 //  }
 //
 //  public static void assertCatalogWithCompoundServiceAsExpected( CatalogBuilder catBuilder, URI docBaseUri, DateType expires )
@@ -100,7 +100,7 @@ public class CatalogTestUtils {
 //    ServiceBuilder serviceBldr = serviceBldrs.get( 0 );
 //    assertEquals( serviceBldr.getName(), "all" );
 //    assertEquals( serviceBldr.getType(), ServiceType.COMPOUND );
-//    assertEquals(serviceBldr.getBaseUri().toString(), "");
+//    assertEquals(serviceBldr.getBaseUriAsString(), "");
 //
 //    serviceBldrs = serviceBldr.getServiceBuilders();
 //    assertFalse( serviceBldrs.isEmpty());
@@ -109,17 +109,17 @@ public class CatalogTestUtils {
 //    serviceBldr = serviceBldrs.get( 0);
 //    assertEquals( serviceBldr.getName(), "odap" );
 //    assertEquals( serviceBldr.getType(), ServiceType.OPENDAP );
-//    assertEquals( serviceBldr.getBaseUri().toString(), "/thredds/dodsC/" );
+//    assertEquals( serviceBldr.getBaseUriAsString(), "/thredds/dodsC/" );
 //
 //    serviceBldr = serviceBldrs.get( 1);
 //    assertEquals( serviceBldr.getName(), "wcs" );
 //    assertEquals( serviceBldr.getType(), ServiceType.WCS );
-//    assertEquals( serviceBldr.getBaseUri().toString(), "/thredds/wcs/" );
+//    assertEquals( serviceBldr.getBaseUriAsString(), "/thredds/wcs/" );
 //
 //    serviceBldr = serviceBldrs.get( 2);
 //    assertEquals( serviceBldr.getName(), "wms" );
 //    assertEquals( serviceBldr.getType(), ServiceType.WMS );
-//    assertEquals( serviceBldr.getBaseUri().toString(), "/thredds/wms/" );
+//    assertEquals( serviceBldr.getBaseUriAsString(), "/thredds/wms/" );
 //  }
 //
 //  public static void assertCatalogHasSingleAccessDataset( CatalogBuilder catBuilder,
@@ -142,7 +142,7 @@ public class CatalogTestUtils {
 //    AccessBuilder access = accesses.get( 0 );
 //    assertEquals( access.getUrlPath(), "test/test1.nc" );
 //    assertEquals( access.getServiceBuilderName().getType(), ServiceType.OPENDAP );
-//    assertEquals( access.getServiceBuilderName().getBaseUri().toString(), "/thredds/dodsC/" );
+//    assertEquals( access.getServiceBuilderName().getBaseUriAsString(), "/thredds/dodsC/" );
 //  }
 //
 //  public static DatasetBuilder assertCatalogWithContainerDatasetAsExpected( CatalogBuilder catBuilder,
@@ -188,7 +188,7 @@ public class CatalogTestUtils {
 //    AccessBuilder access = accesses.get( 0 );
 //    assertEquals( access.getUrlPath(), "test/test1.nc" );
 //    assertEquals( access.getServiceBuilderName().getType(), ServiceType.OPENDAP );
-//    assertEquals( access.getServiceBuilderName().getBaseUri().toString(), "/thredds/dodsC/" );
+//    assertEquals( access.getServiceBuilderName().getBaseUriAsString(), "/thredds/dodsC/" );
 //  }
 //
 //  public static void assertNestedDatasetIsNotAccessible( CatalogBuilder catBuilder,

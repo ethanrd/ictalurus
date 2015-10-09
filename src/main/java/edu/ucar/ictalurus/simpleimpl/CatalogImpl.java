@@ -35,6 +35,7 @@ package edu.ucar.ictalurus.simpleimpl;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 
 import ucar.nc2.units.DateType;
@@ -67,7 +68,7 @@ class CatalogImpl implements Catalog, CatalogBuilder
 //
 //  private final DatasetNodeContainer datasetContainer;
 //
-  private final PropertyBuilderContainer propertyBuilderContainer;
+  private PropertyBuilderContainer propertyBuilderContainer;
 
   private ThreddsCatalogIssueContainer threddsCatalogIssueContainer;
 
@@ -86,8 +87,7 @@ class CatalogImpl implements Catalog, CatalogBuilder
     this.expires = expires != null ? expires : new DateType();
     this.lastModified = lastModified != null ? lastModified : new DateType();
 
-    this.propertyBuilderContainer = new PropertyBuilderContainer();
-    this.propertyBuilderContainer.setContainingBuilder( this );
+    this.propertyBuilderContainer = null;
 
     this.isBuildable = Buildable.DONT_KNOW;
   }
@@ -221,6 +221,10 @@ class CatalogImpl implements Catalog, CatalogBuilder
   public void addProperty( String name, String value ) {
     if ( this.isBuilt )
       throw new IllegalStateException( "This CatalogBuilder has been built." );
+    if ( this.propertyBuilderContainer == null ) {
+      this.propertyBuilderContainer = new PropertyBuilderContainer();
+      this.propertyBuilderContainer.setContainingBuilder( this );
+    }
     this.propertyBuilderContainer.addProperty( name, value );
   }
 
@@ -229,26 +233,36 @@ class CatalogImpl implements Catalog, CatalogBuilder
     if ( this.isBuilt )
       throw new IllegalStateException( "This CatalogBuilder has been built." );
 
+    if ( this.propertyBuilderContainer == null )
+      return false;
     return this.propertyBuilderContainer.removeProperty( property );
   }
 
   @Override
   public List<Property> getProperties() {
+    if ( this.propertyBuilderContainer == null )
+      return Collections.emptyList();
     return this.propertyBuilderContainer.getProperties();
   }
 
   @Override
   public List<String> getPropertyNames() {
+    if ( this.propertyBuilderContainer == null )
+      return Collections.emptyList();
     return this.propertyBuilderContainer.getPropertyNames();
   }
 
   @Override
   public List<Property> getProperties( String name ) {
+    if ( this.propertyBuilderContainer == null )
+      return Collections.emptyList();
     return this.propertyBuilderContainer.getProperties( name );
   }
 
   @Override
   public Property getProperty( String name ) {
+    if ( this.propertyBuilderContainer == null )
+      return null;
     return this.propertyBuilderContainer.getProperty( name );
   }
 
@@ -350,7 +364,8 @@ class CatalogImpl implements Catalog, CatalogBuilder
 //    builderIssues.addAllIssues( this.globalServiceContainer.checkForIssues());
 //    builderIssues.addAllIssues( this.serviceContainer.checkForIssues());
 //    builderIssues.addAllIssues( this.datasetContainer.checkForIssues());
-    builderIssues.addAllIssues( this.propertyBuilderContainer.checkForIssues());
+    if ( this.propertyBuilderContainer != null )
+      builderIssues.addAllIssues( this.propertyBuilderContainer.checkForIssues());
 
     if ( builderIssues.isValid())
       this.isBuildable = Buildable.YES;
@@ -377,7 +392,6 @@ class CatalogImpl implements Catalog, CatalogBuilder
 
 //    this.serviceContainer.build();
 //    this.datasetContainer.build();
-//    this.propertyBuilderContainer.build();
 
     this.threddsCatalogIssueContainer = new ThreddsCatalogIssuesImpl( builderIssues);
 

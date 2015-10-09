@@ -61,16 +61,17 @@ public interface Catalog extends ThreddsCatalogNode
   public DateType getExpires();
   public DateType getLastModified();
 
-//  public List<Service> getServices();
-//  public Service getServiceByName( String name );
-//  public Service findServiceByNameGlobally( String name );
-//
-//  public List<DatasetNode> getDatasets();
-//  public DatasetNode getDatasetById( String id );
-//  public DatasetNode findDatasetByIdGlobally( String id );
-
   public List<Property> getProperties();
   public List<String> getPropertyNames();
   public Property getProperty( String name );
   public List<Property> getProperties( String name );
+
+  public List<Service> getServices();
+  public Service getServiceByName( String name );
+  public Service findReferencableServiceByName( String name );
+
+//  public List<DatasetNode> getDatasets();
+//  public DatasetNode getDatasetById( String id );
+//  public DatasetNode findDatasetByIdGlobally( String id );
+
 }

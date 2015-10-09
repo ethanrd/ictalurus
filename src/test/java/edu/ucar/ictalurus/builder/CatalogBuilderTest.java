@@ -5,8 +5,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import ucar.nc2.units.DateType;
 import edu.ucar.ictalurus.Property;
+import edu.ucar.ictalurus.ServiceType;
+import edu.ucar.ictalurus.testutil.ThreddsBuilderFactoryUtils;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -27,11 +28,7 @@ public class CatalogBuilderTest {
 
   @Parameterized.Parameters
   public static Collection<Object[]> threddsBuilderFactoryClasses() {
-    Object[][] classes = {
-        {new edu.ucar.ictalurus.straightimpl.ThreddsBuilderFactoryImpl()},
-        {new edu.ucar.ictalurus.simpleimpl.ThreddsBuilderFactoryImpl()}
-    };
-    return Arrays.asList( classes );
+    return ThreddsBuilderFactoryUtils.threddsBuilderFactoryClasses();
   }
 
     @Test
@@ -120,4 +117,75 @@ public class CatalogBuilderTest {
 
   }
 
+  @Test
+  public void checkServices() {
+    String docBaseUri = "http://mine/thredds/catalog.html";
+    CatalogBuilder catalogBuilder =
+        this.threddsBuilderFactory.newCatalogBuilder( "cat", docBaseUri, "1.0", null, null );
+    assertNotNull( catalogBuilder );
+
+    catalogBuilder.addService( "odap", ServiceType.OPENDAP, "/thredds/docsC/" );
+    catalogBuilder.addService( "wcs", ServiceType.WCS, "/thredds/wcs/" );
+    catalogBuilder.addService( "wms", ServiceType.WMS, "/thredds/wms/" );
+    List<ServiceBuilder> serviceBuilderList = catalogBuilder.getServiceBuilders();
+    assertEquals( 3, serviceBuilderList.size() );
+    ServiceBuilder serviceBuilder = serviceBuilderList.get( 0 );
+    assertEquals( "odap", serviceBuilder.getName());
+    assertEquals( ServiceType.OPENDAP, serviceBuilder.getType());
+    assertEquals( "/thredds/docsC/", serviceBuilder.getBaseUriAsString());
+    assertEquals( "", serviceBuilder.getDescription() );
+    assertEquals( "", serviceBuilder.getSuffix() );
+    ServiceBuilder namedServiceBuilder = catalogBuilder.findReferencableServiceBuilderByName( "odap" );
+    assertTrue( serviceBuilder == namedServiceBuilder );
+
+    serviceBuilder = serviceBuilderList.get( 1 );
+    assertEquals( "wcs", serviceBuilder.getName());
+    assertEquals( ServiceType.WCS, serviceBuilder.getType());
+    assertEquals( "/thredds/wcs/", serviceBuilder.getBaseUriAsString());
+    assertEquals( "", serviceBuilder.getDescription() );
+    assertEquals( "", serviceBuilder.getSuffix() );
+    namedServiceBuilder = catalogBuilder.findReferencableServiceBuilderByName( "wcs" );
+    assertTrue( serviceBuilder == namedServiceBuilder );
+
+    serviceBuilder = serviceBuilderList.get( 2 );
+    assertEquals( "wms", serviceBuilder.getName());
+    assertEquals( ServiceType.WMS, serviceBuilder.getType());
+    assertEquals( "/thredds/wms/", serviceBuilder.getBaseUriAsString());
+    assertEquals( "", serviceBuilder.getDescription() );
+    assertEquals( "", serviceBuilder.getSuffix() );
+    namedServiceBuilder = catalogBuilder.findReferencableServiceBuilderByName( "wms" );
+    assertTrue( serviceBuilder == namedServiceBuilder );
+
+    assertEquals( ThreddsBuilder.Buildable.DONT_KNOW, catalogBuilder.isBuildable() );
+    BuilderIssues builderIssues = catalogBuilder.checkForIssues();
+    assertNotNull( builderIssues );
+    assertTrue( builderIssues.isValid());
+    assertEquals( ThreddsBuilder.Buildable.YES, catalogBuilder.isBuildable());
+
+    catalogBuilder.removeService( serviceBuilderList.get( 1) );
+
+    serviceBuilderList = catalogBuilder.getServiceBuilders();
+    assertEquals( 2, serviceBuilderList.size() );
+    serviceBuilder = serviceBuilderList.get( 0 );
+    assertEquals( "odap", serviceBuilder.getName());
+    assertEquals( ServiceType.OPENDAP, serviceBuilder.getType());
+    assertEquals( "/thredds/docsC/", serviceBuilder.getBaseUriAsString());
+    assertEquals( "", serviceBuilder.getDescription() );
+    assertEquals( "", serviceBuilder.getSuffix() );
+
+    serviceBuilder = serviceBuilderList.get( 1 );
+    assertEquals( "wms", serviceBuilder.getName());
+    assertEquals( ServiceType.WMS, serviceBuilder.getType());
+    assertEquals( "/thredds/wms/", serviceBuilder.getBaseUriAsString());
+    assertEquals( "", serviceBuilder.getDescription() );
+    assertEquals( "", serviceBuilder.getSuffix() );
+
+    assertEquals( ThreddsBuilder.Buildable.DONT_KNOW, catalogBuilder.isBuildable() );
+
+    builderIssues = catalogBuilder.checkForIssues();
+    assertNotNull( builderIssues );
+    assertTrue( builderIssues.isValid());
+    assertEquals( ThreddsBuilder.Buildable.YES, catalogBuilder.isBuildable());
   }
+
+}

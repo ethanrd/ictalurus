@@ -6,20 +6,27 @@
 - Start "fresh" in clcommon with package ucar.thredds.catalog
   - Limit initial work to Catalog
 ** Current actions
+*** TODO Consolidate checkForIssues() as utility that impls can use
+*** TODO When set isBuildable to DONT_KNOW, also set buildIssues to null
+- So only carrying around buildIssues incase build(), release them once can't build()
+*** TODO Hide CatalogWideService*Tracker in Service*Container
 *** TODO Add handling for next XML element
-- property
-|      | property | service | dataset |
-|------+----------+---------+---------|
-| copy |          |         |         |
-| test |          |         |         | 
-
-- steps
-  - copy node and builder
-  - copy impls
-  - copy parsers
-  - copy writers
-  - copy builder tests and update to use multiple impls
-  - copy add parser/writer tests  
+**** XML elements
+- [x] Catalog
+- [x] Property
+- [ ] Service  1) [x], 2) [x], 3) [x], 4) [x], 5) [ ] need to test
+- [ ] Access
+- [ ] DatasetNode
+**** Steps for each XML element
+1) copy node and builder
+2) copy impls (and any containers)
+3) Add to ThreddsBuilderFactory
+4) copy Builder (and any container) tests and get them running
+5) Add containers (if needed) and test them
+6) Add use of new node/builder in parent nodes/builders (e.g., add Property to Catalog)
+7) Add tests for new child elements
+8) copy XML names, parsers, and writers
+9) copy add parser/writer tests, add to CatalogXmlAsStringUtils and ThreddsCompareUtils
 *** TODO Write impl agnostic Builder/Node tests
 *** TODO Write impl specific Builder/Node tests
 *** TODO Write impl and parser agnostic tests

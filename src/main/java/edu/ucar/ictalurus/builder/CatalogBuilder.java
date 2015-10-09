@@ -35,6 +35,7 @@ package edu.ucar.ictalurus.builder;
 import ucar.nc2.units.DateType;
 import edu.ucar.ictalurus.Catalog;
 import edu.ucar.ictalurus.Property;
+import edu.ucar.ictalurus.ServiceType;
 
 import java.util.List;
 
@@ -61,13 +62,6 @@ public interface CatalogBuilder extends ThreddsBuilder
   public DateType getLastModified();
   public void setLastModified( DateType lastModified );
 
-  // * @throws IllegalStateException this CatalogBuilder has already been finished or already contains a ServiceBuilder with the given name.
-//  public ServiceBuilder addService( String name, ServiceType type, String baseUri );
-//  public boolean removeService( ServiceBuilder serviceBuilder );
-//  public List<ServiceBuilder> getServiceBuilders();
-//  public ServiceBuilder getServiceBuilderByName( String name );
-//  public ServiceBuilder findServiceBuilderByNameGlobally( String name );
-//
 //  public DatasetBuilder addDataset( String name );
 //  public CatalogRefBuilder addCatalogRef( String name, String uriReference );
 //  public boolean removeDataset( DatasetNodeBuilder datasetNodeBuilder );
@@ -82,6 +76,13 @@ public interface CatalogBuilder extends ThreddsBuilder
   public List<String> getPropertyNames();
   public List<Property> getProperties( String name );
   public Property getProperty( String name );
+
+  // * @throws IllegalStateException this CatalogBuilder has already been finished or already contains a ServiceBuilder with the given name.
+  public ServiceBuilder addService( String name, ServiceType type, String baseUri );
+  public boolean removeService( ServiceBuilder serviceBuilder );
+  public List<ServiceBuilder> getServiceBuilders();
+// ??? public ServiceBuilder getServiceBuilderByName( String name );
+  public ServiceBuilder findReferencableServiceBuilderByName( String name );
 
   /**
    * Generate the resulting Catalog.
