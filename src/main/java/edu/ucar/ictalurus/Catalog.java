@@ -53,7 +53,7 @@ import java.util.List;
  * @author edavis
  * @since 4.0
  */
-public interface Catalog extends ThreddsCatalogNode
+public interface Catalog extends ThreddsCatalogNode, ServiceContainer
 {
   public String getName();
   public URI getDocBaseUri();
@@ -65,10 +65,6 @@ public interface Catalog extends ThreddsCatalogNode
   public List<String> getPropertyNames();
   public Property getProperty( String name );
   public List<Property> getProperties( String name );
-
-  public List<Service> getServices();
-//  public Service getServiceByName( String name );
-  public Service findReferencableServiceByName( String name );
 
 //  public List<DatasetNode> getDatasets();
 //  public DatasetNode getDatasetById( String id );

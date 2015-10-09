@@ -3,8 +3,10 @@ package edu.ucar.ictalurus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import ucar.nc2.units.DateType;
-import edu.ucar.ictalurus.builder.*;
+import edu.ucar.ictalurus.builder.BuilderIssues;
+import edu.ucar.ictalurus.builder.ServiceBuilder;
+import edu.ucar.ictalurus.builder.ThreddsBuilder;
+import edu.ucar.ictalurus.builder.ThreddsBuilderFactory;
 import edu.ucar.ictalurus.testutil.ThreddsBuilderFactoryUtils;
 import edu.ucar.ictalurus.util.ThreddsCompareUtils;
 
@@ -19,23 +21,20 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * _more_
+ * _MORE_
  *
  * @author edavis
  */
 @RunWith(Parameterized.class)
-public class CatalogTest
-{
+public class ServiceTest {
   private ThreddsBuilderFactory threddsBuilderFactory;
 
   private String catName = "Catalog Name";
   private String docBaseUri = "http://server/thredds/catalog.html";
   private String version = "1.6";
-  private DateType expires = new DateType( true, null);
-  private DateType lastModified = new DateType( true, null);
 
 
-  public CatalogTest( ThreddsBuilderFactory threddsBuilderFactory ) {
+  public ServiceTest( ThreddsBuilderFactory threddsBuilderFactory ) {
     this.threddsBuilderFactory = threddsBuilderFactory;
   }
 
@@ -44,66 +43,67 @@ public class CatalogTest
     return ThreddsBuilderFactoryUtils.threddsBuilderFactoryClasses();
   }
 
-  private CatalogBuilder setupFor_checkBasicCatalogBuilderCreation() {
+  private ServiceBuilder setupFor_checkBasicServiceBuilderCreation() {
 
-    CatalogBuilder catalogBuilder =
-            this.threddsBuilderFactory.newCatalogBuilder( catName, docBaseUri, version, expires, lastModified );
-    assertNotNull( catalogBuilder );
+    ServiceBuilder serviceBuilder =
+        this.threddsBuilderFactory.newServiceBuilder( "all", ServiceType.COMPOUND, "" );
+    assertNotNull( serviceBuilder );
 
-    BuilderIssues builderIssues = catalogBuilder.checkForIssues();
+    BuilderIssues builderIssues = serviceBuilder.checkForIssues();
     assertNotNull( builderIssues );
-    assertEquals( ThreddsBuilder.Buildable.YES, catalogBuilder.isBuildable());
+    assertEquals( ThreddsBuilder.Buildable.YES, serviceBuilder.isBuildable());
 
-    return catalogBuilder;
+    return serviceBuilder;
   }
 
-  private CatalogBuilder setupFor_checkProperties() {
-    CatalogBuilder catalogBuilder = setupFor_checkBasicCatalogBuilderCreation();
+  private ServiceBuilder setupFor_checkProperties() {
+    ServiceBuilder serviceBuilder = setupFor_checkBasicServiceBuilderCreation();
 
-    catalogBuilder.addProperty( "name1", "value1" );
-    catalogBuilder.addProperty( "name2", "value2" );
-    catalogBuilder.addProperty( "name3", "value3" );
+    serviceBuilder.addProperty( "name1", "value1" );
+    serviceBuilder.addProperty( "name2", "value2" );
+    serviceBuilder.addProperty( "name3", "value3" );
 
-    BuilderIssues builderIssues = catalogBuilder.checkForIssues();
+    BuilderIssues builderIssues = serviceBuilder.checkForIssues();
     assertNotNull( builderIssues );
-    assertEquals( ThreddsBuilder.Buildable.YES, catalogBuilder.isBuildable());
+    assertEquals( ThreddsBuilder.Buildable.YES, serviceBuilder.isBuildable());
 
-    return catalogBuilder;
+    return serviceBuilder;
   }
 
-  private CatalogBuilder setupFor_checkServices() {
-    CatalogBuilder catalogBuilder = setupFor_checkBasicCatalogBuilderCreation();
+  private ServiceBuilder setupFor_checkServices() {
+    ServiceBuilder serviceBuilder = setupFor_checkBasicServiceBuilderCreation();
 
-    catalogBuilder.addService( "odap", ServiceType.OPENDAP, "/thredds/docsC/" );
-    catalogBuilder.addService( "wcs", ServiceType.WCS, "/thredds/wcs/" );
-    catalogBuilder.addService( "wms", ServiceType.WMS, "/thredds/wms/" );
+    serviceBuilder.addService( "odap", ServiceType.OPENDAP, "/thredds/docsC/" );
+    serviceBuilder.addService( "wcs", ServiceType.WCS, "/thredds/wcs/" );
+    serviceBuilder.addService( "wms", ServiceType.WMS, "/thredds/wms/" );
 
-    BuilderIssues builderIssues = catalogBuilder.checkForIssues();
+    BuilderIssues builderIssues = serviceBuilder.checkForIssues();
     assertNotNull( builderIssues );
-    assertEquals( ThreddsBuilder.Buildable.YES, catalogBuilder.isBuildable());
+    assertEquals( ThreddsBuilder.Buildable.YES, serviceBuilder.isBuildable());
 
-    return catalogBuilder;
+    return serviceBuilder;
   }
+
 
   @Test
   public void checkBasicCatalogCreation()
-          throws URISyntaxException
+      throws URISyntaxException
   {
-    Catalog catalog = setupFor_checkBasicCatalogBuilderCreation().build();
+    Service service = setupFor_checkBasicServiceBuilderCreation().build();
 
-    assertEquals( catName, catalog.getName());
-    assertEquals( new URI( docBaseUri ), catalog.getDocBaseUri() );
-    assertEquals( version, catalog.getVersion() );
-    assertEquals( expires, catalog.getExpires() );
-    assertEquals( lastModified, catalog.getLastModified() );
+    assertEquals( "all", service.getName() );
+    assertEquals( ServiceType.COMPOUND, service.getType() );
+    assertEquals( "", service.getBaseUri() );
+    assertEquals( "", service.getDescription() );
+    assertEquals( "", service.getSuffix() );
   }
 
   @Test
   public void checkProperties() {
-    Catalog catalog = setupFor_checkProperties().build();
+    Service serviceRoot = setupFor_checkProperties().build();
 
-    // Test Catalog.getProperties()
-    List<Property> properties = catalog.getProperties();
+    // Test Service.getProperties()
+    List<Property> properties = serviceRoot.getProperties();
     assertEquals( 3, properties.size() );
 
     Property property1 = properties.get( 0 );
@@ -118,58 +118,58 @@ public class CatalogTest
     assertEquals( "name3", property3.getName() );
     assertEquals( "value3", property3.getValue() );
 
-    // Test Catalog.getPropertyNames()
-    List<String> propertyNames = catalog.getPropertyNames();
+    // Test Service.getPropertyNames()
+    List<String> propertyNames = serviceRoot.getPropertyNames();
     assertEquals( property1.getName(), propertyNames.get( 0 ) );
     assertEquals( property2.getName(), propertyNames.get( 1 ) );
     assertEquals( property3.getName(), propertyNames.get( 2 ) );
 
-    // Test Catalog.getProperties( String name)
-    List<Property> propertiesWithName1 = catalog.getProperties( "name1" );
+    // Test Service.getProperties( String name)
+    List<Property> propertiesWithName1 = serviceRoot.getProperties( "name1" );
     assertEquals( 1, propertiesWithName1.size() );
     Formatter compareLog = new Formatter();
     assertTrue( compareLog.toString(),
-                ThreddsCompareUtils.compareProperties( property1, propertiesWithName1.get( 0 ), compareLog ) );
+        ThreddsCompareUtils.compareProperties( property1, propertiesWithName1.get( 0 ), compareLog ) );
     compareLog.close();
 
-    List<Property> propertiesWithName2 = catalog.getProperties( "name2" );
+    List<Property> propertiesWithName2 = serviceRoot.getProperties( "name2" );
     assertEquals( 1, propertiesWithName2.size() );
     compareLog = new Formatter();
     assertTrue( compareLog.toString(),
-                ThreddsCompareUtils.compareProperties( property2, propertiesWithName2.get( 0 ), compareLog));
+        ThreddsCompareUtils.compareProperties( property2, propertiesWithName2.get( 0 ), compareLog));
     compareLog.close();
 
-    List<Property> propertiesWithName3 = catalog.getProperties( "name3" );
+    List<Property> propertiesWithName3 = serviceRoot.getProperties( "name3" );
     assertEquals( 1, propertiesWithName3.size() );
     compareLog = new Formatter();
     assertTrue( compareLog.toString(),
-                ThreddsCompareUtils.compareProperties( property3, propertiesWithName3.get( 0 ), compareLog));
+        ThreddsCompareUtils.compareProperties( property3, propertiesWithName3.get( 0 ), compareLog));
     compareLog.close();
 
-    // Test Catalog.getProperty( String name)
+    // Test serviceRoot.getProperty( String name)
     compareLog = new Formatter();
     assertTrue( compareLog.toString(),
-                ThreddsCompareUtils.compareProperties( property1, catalog.getProperty( "name1" ), compareLog));
-    compareLog.close();
-
-    compareLog = new Formatter();
-    assertTrue( compareLog.toString(),
-                ThreddsCompareUtils.compareProperties( property2, catalog.getProperty( "name2" ), compareLog));
+        ThreddsCompareUtils.compareProperties( property1, serviceRoot.getProperty( "name1" ), compareLog));
     compareLog.close();
 
     compareLog = new Formatter();
     assertTrue( compareLog.toString(),
-                ThreddsCompareUtils.compareProperties( property3, catalog.getProperty( "name3" ), compareLog));
+        ThreddsCompareUtils.compareProperties( property2, serviceRoot.getProperty( "name2" ), compareLog));
+    compareLog.close();
+
+    compareLog = new Formatter();
+    assertTrue( compareLog.toString(),
+        ThreddsCompareUtils.compareProperties( property3, serviceRoot.getProperty( "name3" ), compareLog));
     compareLog.close();
   }
 
   @Test
   public void checkServices()
-          throws URISyntaxException
+      throws URISyntaxException
   {
-    Catalog catalog = setupFor_checkServices().build();
+    Service serviceRoot = setupFor_checkServices().build();
 
-    List<Service> serviceList = catalog.getServices();
+    List<Service> serviceList = serviceRoot.getServices();
     assertEquals( 3, serviceList.size() );
     Service service1 = serviceList.get( 0 );
     assertEquals( "odap", service1.getName());
@@ -180,7 +180,7 @@ public class CatalogTest
 
     Formatter compareLog = new Formatter();
     assertTrue( compareLog.toString(),
-                ThreddsCompareUtils.compareServices( service1, catalog.findReferencableServiceByName( "odap" ), compareLog ));
+        ThreddsCompareUtils.compareServices( service1, serviceRoot.findReferencableServiceByName( "odap" ), compareLog ) );
     compareLog.close();
 
     Service service2 = serviceList.get( 1 );
@@ -192,12 +192,11 @@ public class CatalogTest
 
     compareLog = new Formatter();
     assertTrue( compareLog.toString(),
-                ThreddsCompareUtils.compareServices( service2, catalog.findReferencableServiceByName( "wcs" ), compareLog));
+        ThreddsCompareUtils.compareServices( service2, serviceRoot.findReferencableServiceByName( "wcs" ), compareLog));
     compareLog.close();
 
-
     Service service3 = serviceList.get( 2 );
-    assertEquals( "wms", service3.getName());
+    assertEquals( "wms", service3.getName() );
     assertEquals( ServiceType.WMS, service3.getType());
     assertEquals( new URI( "/thredds/wms/"), service3.getBaseUri());
     assertEquals( "", service3.getDescription() );
@@ -205,7 +204,7 @@ public class CatalogTest
 
     compareLog = new Formatter();
     assertTrue( compareLog.toString(),
-                ThreddsCompareUtils.compareServices( service3, catalog.findReferencableServiceByName( "wms" ), compareLog));
+        ThreddsCompareUtils.compareServices( service3, serviceRoot.findReferencableServiceByName( "wms" ), compareLog ) );
     compareLog.close();
   }
 }

@@ -42,7 +42,7 @@ import java.util.List;
  * @author edavis
  * @since 4.0
  */
-public interface Service extends ThreddsCatalogNode
+public interface Service extends ThreddsCatalogNode, ServiceContainer
 {
   /**
    * Returns the name of this Service, may not be null.
@@ -90,15 +90,4 @@ public interface Service extends ThreddsCatalogNode
 
   public Property getProperty( String name );
   public List<Property> getProperties( String name );
-
-  /**
-   * Return the List of Service Objects nested in this service. Nested
-   * services are only allowed when this service has a "Compound" ServiceType.
-   *
-   * @return the List of Service Objects nested in this service, may be an empty list but not null.
-   */
-//  public List<Service> getServices();
-
-//  public Service getService( String name );
-//  public Service findReferencableServiceByName( String name );
 }

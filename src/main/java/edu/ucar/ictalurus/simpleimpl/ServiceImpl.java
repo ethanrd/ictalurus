@@ -69,8 +69,8 @@ class ServiceImpl implements Service, ServiceBuilder
 
   private PropertyBuilderContainer propertyBuilderContainer;
 
-//  private ServiceContainer serviceContainer;
-//
+  private ServiceContainer serviceContainer;
+
 //  private final GlobalServiceContainer globalServiceContainer;
   private final boolean isRootContainer;
 
@@ -111,8 +111,8 @@ class ServiceImpl implements Service, ServiceBuilder
 //      this.isRootContainer = false;
 //      this.globalServiceContainer = globalServiceContainer;
 //    }
-//
-//    this.serviceContainer = new ServiceContainer( this.globalServiceContainer );
+
+    this.serviceContainer = new ServiceContainer(); // this.globalServiceContainer );
   }
 
   public void setName( String name ) {
@@ -222,59 +222,48 @@ class ServiceImpl implements Service, ServiceBuilder
     return this.propertyBuilderContainer.getProperty( name );
   }
 
-//  public ServiceBuilder addService( String name, ServiceType type, URI baseUri ) {
-//    this.isBuildable = Buildable.DONT_KNOW;
-//    return this.serviceContainer.addService( name, type, baseUri );
-//  }
-//
-//  public boolean removeService( ServiceBuilder serviceBuilder )
-//  {
-//    if ( serviceBuilder == null )
-//      return false;
-//
-//    this.isBuildable = Buildable.DONT_KNOW;
-//    return this.serviceContainer.removeService( (ServiceImpl) serviceBuilder );
-//  }
-//
-//  public List<Service> getServices()
-//  {
-//    if ( !this.isBuilt )
-//      throw new IllegalStateException( "This Service has escaped from its ServiceBuilder without being built." );
-//    return this.serviceContainer.getServices();
-//  }
-//
-//  public Service getService(String name)
-//  {
-//    if ( !this.isBuilt )
-//      throw new IllegalStateException( "This Service has escaped from its ServiceBuilder without being built." );
-//    return this.serviceContainer.getServiceByName( name );
-//  }
-//
-//  public Service findServiceByNameGlobally( String name )
-//  {
-//    if ( ! this.isBuilt)
-//      throw new IllegalStateException( "This Service has escaped its Builder before being built.");
+  public ServiceBuilder addService( String name, ServiceType type, String baseUri ) {
+    this.isBuildable = Buildable.DONT_KNOW;
+    return this.serviceContainer.addService( name, type, baseUri );
+  }
+
+  public boolean removeService( ServiceBuilder serviceBuilder )
+  {
+    if ( serviceBuilder == null )
+      return false;
+
+    this.isBuildable = Buildable.DONT_KNOW;
+    return this.serviceContainer.removeService( (ServiceImpl) serviceBuilder );
+  }
+
+  public List<ServiceBuilder> getServiceBuilders()
+  {
+    if ( this.isBuilt ) throw new IllegalStateException( "This ServiceBuilder has been built." );
+    return this.serviceContainer.getServiceBuilders();
+  }
+
+  @Override
+  public ServiceBuilder findReferencableServiceBuilderByName( String name ) {
+    if ( this.isBuilt )
+      throw new IllegalStateException( "This ServiceBuilder has been built." );
 //    return this.globalServiceContainer.getServiceByGloballyUniqueName( name );
-//  }
-//
-//  public List<ServiceBuilder> getServiceBuilders()
-//  {
-//    if ( this.isBuilt ) throw new IllegalStateException( "This ServiceBuilder has been built." );
-//    return this.serviceContainer.getServiceBuilders();
-//  }
-//
-//  public ServiceBuilder getServiceBuilderByName( String name )
-//  {
-//    if ( this.isBuilt ) throw new IllegalStateException( "This ServiceBuilder has been built." );
-//    return this.serviceContainer.getServiceBuilderByName( name );
-//  }
-//
-//  public ServiceBuilder findServiceBuilderByNameGlobally( String name )
-//  {
-//    if ( this.isBuilt )
-//      throw new IllegalStateException( "This ServiceBuilder has been built." );
+    return null;
+  }
+
+  public List<Service> getServices()
+  {
+    if ( !this.isBuilt )
+      throw new IllegalStateException( "This Service has escaped from its ServiceBuilder without being built." );
+    return this.serviceContainer.getServices();
+  }
+
+  @Override
+  public Service findReferencableServiceByName( String name ) {
+    if ( ! this.isBuilt)
+      throw new IllegalStateException( "This Service has escaped its Builder before being built.");
 //    return this.globalServiceContainer.getServiceByGloballyUniqueName( name );
-//  }
+    return null;
+  }
 
   public Buildable isBuildable()
   {

@@ -35,7 +35,6 @@ package edu.ucar.ictalurus.builder;
 import ucar.nc2.units.DateType;
 import edu.ucar.ictalurus.Catalog;
 import edu.ucar.ictalurus.Property;
-import edu.ucar.ictalurus.ServiceType;
 
 import java.util.List;
 
@@ -45,7 +44,7 @@ import java.util.List;
  * @author edavis
  * @since 4.0
  */
-public interface CatalogBuilder extends ThreddsBuilder
+public interface CatalogBuilder extends ThreddsBuilder, ServiceBuilderContainer
 {
   public String getName();
   public void setName( String name );
@@ -76,13 +75,6 @@ public interface CatalogBuilder extends ThreddsBuilder
   public List<String> getPropertyNames();
   public List<Property> getProperties( String name );
   public Property getProperty( String name );
-
-  // * @throws IllegalStateException this CatalogBuilder has already been finished or already contains a ServiceBuilder with the given name.
-  public ServiceBuilder addService( String name, ServiceType type, String baseUri );
-  public boolean removeService( ServiceBuilder serviceBuilder );
-  public List<ServiceBuilder> getServiceBuilders();
-// ??? public ServiceBuilder getServiceBuilderByName( String name );
-  public ServiceBuilder findReferencableServiceBuilderByName( String name );
 
   /**
    * Generate the resulting Catalog.

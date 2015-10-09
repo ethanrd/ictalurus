@@ -120,12 +120,75 @@ public class ServiceBuilderTest {
     assertEquals( "value3", property.getValue() );
   }
 
-//  @Test
-//  public void checkServices() {
-//    ServiceBuilder serviceBuilder =
-//        this.threddsBuilderFactory.newServiceBuilder( "all", ServiceType.COMPOUND, "" );
-//    assertNotNull( serviceBuilder );
-//
+  @Test
+  public void checkServices() {
+    ServiceBuilder serviceBuilderRoot =
+        this.threddsBuilderFactory.newServiceBuilder( "all", ServiceType.COMPOUND, "" );
+    assertNotNull( serviceBuilderRoot );
+
+    serviceBuilderRoot.addService( "odap", ServiceType.OPENDAP, "/thredds/docsC/" );
+    serviceBuilderRoot.addService( "wcs", ServiceType.WCS, "/thredds/wcs/" );
+    serviceBuilderRoot.addService( "wms", ServiceType.WMS, "/thredds/wms/" );
+    List<ServiceBuilder> serviceBuilderList = serviceBuilderRoot.getServiceBuilders();
+    assertEquals( 3, serviceBuilderList.size() );
+    ServiceBuilder serviceBuilder = serviceBuilderList.get( 0 );
+    assertEquals( "odap", serviceBuilder.getName());
+    assertEquals( ServiceType.OPENDAP, serviceBuilder.getType());
+    assertEquals( "/thredds/docsC/", serviceBuilder.getBaseUriAsString());
+    assertEquals( "", serviceBuilder.getDescription() );
+    assertEquals( "", serviceBuilder.getSuffix() );
+    ServiceBuilder namedServiceBuilder = serviceBuilderRoot.findReferencableServiceBuilderByName( "odap" );
+    assertTrue( serviceBuilder == namedServiceBuilder );
+
+    serviceBuilder = serviceBuilderList.get( 1 );
+    assertEquals( "wcs", serviceBuilder.getName());
+    assertEquals( ServiceType.WCS, serviceBuilder.getType());
+    assertEquals( "/thredds/wcs/", serviceBuilder.getBaseUriAsString());
+    assertEquals( "", serviceBuilder.getDescription() );
+    assertEquals( "", serviceBuilder.getSuffix() );
+    namedServiceBuilder = serviceBuilderRoot.findReferencableServiceBuilderByName( "wcs" );
+    assertTrue( serviceBuilder == namedServiceBuilder );
+
+    serviceBuilder = serviceBuilderList.get( 2 );
+    assertEquals( "wms", serviceBuilder.getName());
+    assertEquals( ServiceType.WMS, serviceBuilder.getType());
+    assertEquals( "/thredds/wms/", serviceBuilder.getBaseUriAsString());
+    assertEquals( "", serviceBuilder.getDescription() );
+    assertEquals( "", serviceBuilder.getSuffix() );
+    namedServiceBuilder = serviceBuilderRoot.findReferencableServiceBuilderByName( "wms" );
+    assertTrue( serviceBuilder == namedServiceBuilder );
+
+    assertEquals( ThreddsBuilder.Buildable.DONT_KNOW, serviceBuilderRoot.isBuildable() );
+    BuilderIssues builderIssues = serviceBuilderRoot.checkForIssues();
+    assertNotNull( builderIssues );
+    assertTrue( builderIssues.isValid());
+    assertEquals( ThreddsBuilder.Buildable.YES, serviceBuilderRoot.isBuildable());
+
+    serviceBuilderRoot.removeService( serviceBuilderList.get( 1) );
+
+    serviceBuilderList = serviceBuilderRoot.getServiceBuilders();
+    assertEquals( 2, serviceBuilderList.size() );
+    serviceBuilder = serviceBuilderList.get( 0 );
+    assertEquals( "odap", serviceBuilder.getName());
+    assertEquals( ServiceType.OPENDAP, serviceBuilder.getType());
+    assertEquals( "/thredds/docsC/", serviceBuilder.getBaseUriAsString());
+    assertEquals( "", serviceBuilder.getDescription() );
+    assertEquals( "", serviceBuilder.getSuffix() );
+
+    serviceBuilder = serviceBuilderList.get( 1 );
+    assertEquals( "wms", serviceBuilder.getName());
+    assertEquals( ServiceType.WMS, serviceBuilder.getType());
+    assertEquals( "/thredds/wms/", serviceBuilder.getBaseUriAsString());
+    assertEquals( "", serviceBuilder.getDescription() );
+    assertEquals( "", serviceBuilder.getSuffix() );
+
+    assertEquals( ThreddsBuilder.Buildable.DONT_KNOW, serviceBuilderRoot.isBuildable() );
+
+    builderIssues = serviceBuilderRoot.checkForIssues();
+    assertNotNull( builderIssues );
+    assertTrue( builderIssues.isValid());
+    assertEquals( ThreddsBuilder.Buildable.YES, serviceBuilderRoot.isBuildable());
+
 //
 //
 //    serviceBuilder.addProperty( "name1", "value1" );
@@ -163,7 +226,7 @@ public class ServiceBuilderTest {
 //    property = properties.get( 1 );
 //    assertEquals( "name3", property.getName() );
 //    assertEquals( "value3", property.getValue() );
-//  }
+  }
 
   //===========================
   @Test
